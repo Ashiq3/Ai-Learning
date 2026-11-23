@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Backend Master Course — Class 01</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap');
+:root{
+--bg:#0b1119;--panel:#111d29;--panel2:#172638;--paper:#f4f2e9;--ink:#17232f;
+--muted:#9aabba;--teal:#60e0c0;--orange:#ffad70;--blue:#80b6ff;--rose:#ff8585;
+--line:rgba(255,255,255,.12);
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;color:#edf4f5}
+.deck{height:100dvh;width:100vw;position:relative}
+.slide{
+position:absolute;inset:0;padding:24px 4.6vw 20px;display:flex;flex-direction:column;
+opacity:0;visibility:hidden;transform:translateX(24px) scale(.99);
+transition:opacity .26s ease,transform .28s ease,visibility .28s;
+background:radial-gradient(ellipse at 85% 8%,rgba(65,130,146,.16),transparent 36%),linear-gradient(130deg,#0b1119,#0d1723 65%,#101c29);
+}
+.slide.active{opacity:1;visibility:visible;transform:none}
+.slide-top,.slide-bottom{display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.course-mark{font:500 10px 'DM Mono',ui-monospace,monospace;letter-spacing:.13em;color:#b6c8d1}
+.mark-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--teal);margin-right:9px;box-shadow:0 0 14px var(--teal)}
+.slide-meta{display:flex;gap:16px;align-items:center;font:10px 'DM Mono',ui-monospace,monospace;letter-spacing:.1em;color:#8095a5}
+.slide-meta b{color:var(--teal);font-weight:500}
+.slide-content{width:min(1120px,100%);margin:auto;display:flex;flex-direction:column;justify-content:center;flex:1;min-height:0;padding:8px 0 6px}
+.title-block{max-width:880px;margin-bottom:20px}
+.eyebrow{font:500 10px 'DM Mono',ui-monospace,monospace;letter-spacing:.18em;color:var(--teal);margin-bottom:8px;text-transform:uppercase}
+.title-block h1{font:800 clamp(26px,4.2vw,52px)/1.08 'Manrope','DM Sans',sans-serif;letter-spacing:-.04em;margin:0;color:#f1f5f4}
+.title-block p{font-size:clamp(13px,1.35vw,16px);color:#a5b7c1;margin:10px 0 0;max-width:760px;line-height:1.5}
+.visual-area{height:min(58vh,500px);min-height:260px;display:flex;flex-direction:column;justify-content:center;align-items:center;position:relative;gap:14px}
+.slide-bottom{font:10px 'DM Mono',ui-monospace,monospace;color:#6d8292;letter-spacing:.1em}
+/* Teacher cue & chrome */
+.teacher-cue{position:absolute;left:4.6vw;bottom:48px;z-index:5}
+.cue-toggle{border:1px solid rgba(96,224,192,.42);background:rgba(23,38,56,.9);color:var(--teal);border-radius:7px;padding:7px 12px;font:11px 'DM Mono',ui-monospace,monospace;cursor:pointer;transition:.18s}
+.cue-toggle:hover{background:#1a3642}
+.cue-text{display:none;position:absolute;left:0;bottom:38px;width:min(460px,86vw);background:var(--paper);color:#182532;border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.55;box-shadow:0 16px 44px #0009;border:1px solid #d7d3c5}
+.cue-text b{display:block;font:600 10px 'DM Mono',monospace;letter-spacing:.1em;color:#1b6d62;text-transform:uppercase;margin-bottom:4px}
+.cue-text hr{border:none;border-top:1px solid #dedad0;margin:8px 0}
+.teacher-cue.open .cue-text{display:block}
+.controls{position:fixed;z-index:10;right:4.6vw;bottom:42px;display:flex;align-items:center;gap:8px}
+.nav-btn{border:1px solid var(--line);background:#142232;color:#eaf3f2;border-radius:8px;min-width:38px;height:34px;padding:0 10px;font-size:15px;cursor:pointer;transition:.16s}
+.nav-btn:hover:not(:disabled){border-color:var(--teal);color:var(--teal)}
+.nav-btn:disabled{opacity:.28;cursor:default}
+.counter{font:11px 'DM Mono',ui-monospace,monospace;color:#91a4b3;min-width:58px;text-align:center}
+.progress{position:fixed;top:0;left:0;right:0;height:3px;background:#ffffff0c;z-index:20}
+.progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--blue));transition:width .25s}
+.help{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:12;font:10px 'DM Mono',ui-monospace,monospace;color:#718696;white-space:nowrap}
+.key{border:1px solid #62788a;border-radius:3px;padding:1px 5px;color:#c0d0d6}
+/* Shared clean interactive buttons & pills */
+.act-bar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center}
+.cbtn{
+border:1px solid rgba(96,224,192,.45);background:#15343a;color:#c8f7ea;
+border-radius:8px;padding:8px 14px;font:11px 'DM Mono',ui-monospace,monospace;
+cursor:pointer;transition:.18s;letter-spacing:.03em;
+}
+.cbtn:hover{background:#1c484e;transform:translateY(-1px)}
+.cbtn.active{background:var(--teal);color:#0b171d;border-color:var(--teal);font-weight:700}
+.cbtn.ghost{background:#142333;border-color:var(--line);color:#b7c9d4}
+.cbtn.ghost:hover{border-color:var(--teal);color:var(--teal)}
+.cbtn.orange{background:#34251c;border-color:rgba(255,173,112,.5);color:#ffd0a8}
+.cbtn.orange:hover{background:#473022}
+.cbtn.rose{background:#381f24;border-color:rgba(255,133,133,.5);color:#ffb3b3}
+.status-line{
+font-size:12.5px;color:#b8cdd6;background:#132433;border:1px solid var(--line);
+border-left:3px solid var(--teal);padding:10px 15px;border-radius:7px;
+max-width:860px;width:100%;text-align:center;line-height:1.45;transition:.2s;
+}
+.status-line.orange{border-left-color:var(--orange);color:#ffe2c9}
+.status-line.rose{border-left-color:var(--rose);color:#ffd0d0}
+.tool-row{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.tool-tag{font:10px 'DM Mono',monospace;padding:4px 9px;border-radius:99px;background:#142433;border:1px solid var(--line);color:#9bb3c2}
+/* Slide Grid Overlay */
+.grid-overlay{position:fixed;inset:0;z-index:40;background:rgba(8,13,20,.96);display:none;flex-direction:column;padding:24px 4.6vw;overflow-y:auto}
+.grid-overlay.open{display:flex}
+.grid-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.grid-head h2{margin:0;font:700 20px 'Manrope',sans-serif}
+.grid-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.gitem{background:#132130;border:1px solid var(--line);border-radius:9px;padding:11px 13px;cursor:pointer;transition:.16s}
+.gitem:hover{border-color:var(--teal);transform:translateY(-2px)}
+.gitem.cur{border-color:var(--teal);background:#15353a}
+.gitem small{display:block;font:9px 'DM Mono',monospace;color:var(--teal);margin-bottom:4px}
+.gitem b{font:700 13px 'Manrope',sans-serif;display:block;line-height:1.3}
+/* Visual Layouts */
+.hero-grid{width:100%;height:100%;display:grid;grid-template-columns:1fr 1.12fr;align-items:center;gap:3vw}
+.hero-copy{padding-left:1vw}
+.pill{display:inline-block;border:1px solid #60e0c055;color:var(--teal);border-radius:20px;padding:6px 12px;font:10px 'DM Mono',monospace;letter-spacing:.12em}
+.hero-kicker{font:11px 'DM Mono',monospace;color:#91a7b6;letter-spacing:.22em;margin-top:22px}
+.hero-big{font:800 clamp(40px,5.6vw,70px)/1.0 'Manrope',sans-serif;letter-spacing:-.06em;margin-top:14px}
+.hero-big em{font-style:normal;color:var(--teal)}
+.hero-sub{max-width:420px;font-size:15px;line-height:1.6;color:#9db0bc;margin-top:18px}
+.hero-art{height:100%;min-height:300px;position:relative;display:flex;align-items:center;justify-content:center}
+.orbit{position:absolute;border:1px solid #89b7c51c;border-radius:50%;width:430px;height:240px;transform:rotate(-22deg)}
+.o2{width:520px;height:310px;transform:rotate(26deg)}
+.node{position:absolute;border:1px solid #94afc433;background:linear-gradient(145deg,#1a2c3d,#111b29);box-shadow:0 12px 45px #0005;border-radius:16px;z-index:2}
+.phone{left:4%;top:18%;width:190px;height:235px;padding:15px}
+.phone>span,.server small,.cloud small{display:block;font:9px 'DM Mono',monospace;color:#8ba0b1;letter-spacing:.15em}
+.phone-ui{margin-top:16px;background:#0d1722;border-radius:9px;padding:10px;height:155px}
+.phone-ui b{font-size:9px;color:#8299a8}
+.bubble{font-size:10px;padding:8px;border-radius:9px;margin-top:10px}
+.bubble.user{background:#234b51;color:#aff6dd;margin-left:20px}
+.bubble.bot{background:#253346;color:#c8d8e0;margin-right:16px}
+.cloud{left:44%;top:36%;width:92px;height:78px;border-radius:22px;text-align:center;padding-top:12px;color:var(--teal);font-size:26px}
+.server{right:4%;top:22%;width:155px;height:205px;padding:22px;text-align:center}
+.rack{display:grid;gap:8px;margin:14px auto}
+.rack i{height:24px;border-radius:5px;background:#20394a;border:1px solid #4f7f90;display:block;position:relative}
+.rack i:after{content:'';position:absolute;width:6px;height:6px;background:var(--teal);border-radius:50%;right:9px;top:8px}
+.flow-line{position:absolute;width:110px;border-top:2px dashed var(--teal);top:42%;left:30%;transform:rotate(4deg)}
+.line-b{top:63%;left:33%;border-color:var(--orange);transform:rotate(-7deg)}
+.tag{position:absolute;font:9px 'DM Mono',monospace;letter-spacing:.1em;padding:5px 9px;border-radius:5px;background:#112734;color:var(--teal);z-index:3}
+.tag-a{left:28%;top:33%}.tag-b{left:31%;top:68%;color:var(--orange)}
+/* Timeline & Ladder */
+.timeline{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:960px}
+.time-item{min-height:84px;padding:12px 15px;border-radius:9px;background:#162a39;border:1px solid #ffffff1c;display:flex;flex-direction:column;gap:5px}
+.time-item b{font:10px 'DM Mono',monospace;color:var(--teal)}
+.time-item strong{font:700 15px 'Manrope',sans-serif}
+.time-item span{font-size:11px;color:#9cafbb}
+.time-item.highlight{border-color:#60e0c088;background:#153637}
+.time-item.last{border-color:#ffad7066}
+.time-break{grid-column:1/4;text-align:center;color:#ffc08e;font:10px 'DM Mono',monospace;letter-spacing:.16em;padding:3px}
+.ladder-wrap{width:100%;max-width:960px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.mod-card{background:#142333;border:1px solid var(--line);border-radius:12px;padding:16px;cursor:pointer;transition:.2s;display:flex;flex-direction:column;gap:8px}
+.mod-card:hover,.mod-card.active{border-color:var(--teal);background:#15343a;transform:translateY(-2px)}
+.mod-card small{font:9px 'DM Mono',monospace;color:var(--teal);letter-spacing:.12em}
+.mod-card strong{font:700 16px 'Manrope',sans-serif;line-height:1.25}
+.mod-card span{font-size:11.5px;color:#9eb3bf;line-height:1.4}
+/* Chat Demo & X-Ray */
+.chat-demo{width:min(700px,94%);background:#f5f6f8;border-radius:16px;color:#1d2935;box-shadow:0 24px 65px #0005;overflow:hidden;border:1px solid #dde3e8}
+.chat-top{height:44px;border-bottom:1px solid #e2e6ea;display:flex;align-items:center;gap:7px;padding:0 16px;font-size:13px;background:#eef1f4}
+.chat-top b{margin-left:8px}.chat-top small{margin-left:auto;color:#788896;font-size:10px}
+.dot{height:8px;width:8px;border-radius:50%}.red{background:#f47d73}.yellow{background:#eac45c}.green{background:#66c98b}
+.chat-area{padding:20px 26px;display:flex;flex-direction:column;gap:12px;min-height:175px;max-height:210px;overflow-y:auto}
+.chat-bubble{max-width:78%;padding:10px 14px;border-radius:12px;font-size:13.5px;line-height:1.45}
+.chat-bubble.you{background:#d7f4e9;align-self:flex-end}
+.chat-bubble.ai{background:#e9edf1;align-self:flex-start}
+.chat-input-bar{padding:12px 16px;border-top:1px solid #e2e6ea;display:flex;gap:8px;background:#fff}
+.chat-input-bar input{flex:1;border:1px solid #d2dbe2;border-radius:9px;padding:9px 12px;font-size:13px;outline:none;color:#1c2934}
+.chat-input-bar button{background:#184e4b;color:#fff;border:none;border-radius:9px;padding:8px 16px;font:600 12px 'DM Mono',monospace;cursor:pointer}
+.xray-box{transition:.2s;border:2px solid transparent;border-radius:10px}
+.xray-on .xray-box{border:2px dashed #177b70;background:rgba(96,224,192,.14);cursor:pointer}
+.xray-tag{display:none;font:9px 'DM Mono',monospace;color:#115d54;font-weight:700;margin-bottom:4px}
+.xray-on .xray-tag{display:block}
+/* Two worlds & Single concept */
+.two-worlds{display:flex;align-items:center;justify-content:center;gap:18px;width:100%;max-width:860px}
+.world{width:270px;min-height:195px;border-radius:15px;padding:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;text-align:center;transition:.25s;border:1px solid var(--line)}
+.visible-world{background:#183340;border-color:#64b9be55}
+.hidden-world{background:#252d3f;border-color:#f7a26e55}
+.world.lit{transform:scale(1.04);box-shadow:0 0 28px rgba(96,224,192,.28);border-color:var(--teal)}
+.hidden-world.lit{box-shadow:0 0 28px rgba(255,173,112,.28);border-color:var(--orange)}
+.world-icon{font-size:44px}.world b{font-size:19px}.world span{color:#aebdc7;font-size:12.5px}
+.world small{font:9px 'DM Mono',monospace;letter-spacing:.14em;color:var(--teal)}.hidden-world small{color:var(--orange)}
+.corridor{width:190px;text-align:center;position:relative;color:#a1b6c0;font:10px 'DM Mono',monospace}
+.dashed{border-top:2px dashed #7f9ba8;margin-bottom:10px}
+.parcel{position:absolute;top:-22px;left:4%;background:#16353c;border:1px solid var(--teal);color:var(--teal);padding:5px 9px;border-radius:6px;transition:left .7s ease}
+.parcel.mid{left:42%}.parcel.end{left:78%;border-color:var(--orange);color:var(--orange)}
+.single-concept{display:flex;align-items:center;justify-content:center;gap:4.5vw;width:100%;max-width:920px}
+.single-concept.reverse{flex-direction:row-reverse}
+.browser-window{width:410px;background:#f2f4f6;border-radius:13px;box-shadow:0 20px 55px #0006;overflow:hidden;color:#192c38}
+.windowbar{height:32px;background:#dae1e6;display:flex;align-items:center;gap:5px;padding:0 12px}
+.windowbar i{width:7px;height:7px;background:#f0786e;border-radius:50%}
+.windowbar i:nth-child(2){background:#e7c15e}.windowbar i:nth-child(3){background:#60b981}
+.windowbar span{margin-left:10px;color:#627380;font:9px 'DM Mono',monospace}
+.mini-app{padding:16px 28px 20px}
+.mini-nav{font-size:9px;color:#63818d;display:flex;justify-content:space-between;border-bottom:1px solid #dce3e7;padding-bottom:10px}
+.mini-app h3{font-size:18px;margin:14px 0 8px}
+.mini-field{border:1px solid #d3dce1;padding:9px;border-radius:5px;margin-top:8px;font-size:10px;color:#8a9aa3}
+.mini-button{background:#1e6c69;color:white;padding:9px;text-align:center;border-radius:5px;font-size:11px;margin-top:12px;font-weight:700}
+.definition-card{width:340px}
+.definition-card label{color:var(--teal);font:10px 'DM Mono',monospace;letter-spacing:.16em}
+.definition-card strong{display:block;font:700 26px/1.22 'Manrope',sans-serif;margin:12px 0}
+.definition-card p{color:#9fb2bf;line-height:1.55;font-size:14px;margin:0 0 12px}
+.server-illustration{width:400px;height:250px;position:relative;display:flex;align-items:center;justify-content:center}
+.server-box{width:175px;height:200px;border:1px solid #6b94a7;background:linear-gradient(150deg,#223d4e,#111d2a);border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:10px;position:relative;box-shadow:0 15px 40px #0005;z-index:1}
+.server-box.back{position:absolute;transform:translate(98px,-30px);opacity:.65;z-index:0}
+.server-light{width:9px;height:9px;background:var(--teal);border-radius:50%;box-shadow:0 0 14px var(--teal)}
+.server-slot{height:22px;border-radius:4px;background:#1c3446;border:1px solid #426275}
+.server-box span{font:9px 'DM Mono',monospace;color:#8cabbc;letter-spacing:.12em;margin-top:4px}
+/* Role / Comparison / Classifier */
+.role-visual{display:flex;flex-direction:column;align-items:center;text-align:center;max-width:720px}
+.role-icon{font-size:66px;line-height:1.15;filter:drop-shadow(0 10px 20px #0006)}
+.role-label{font:10px 'DM Mono',monospace;letter-spacing:.19em;color:var(--teal);margin-top:10px}
+.role-main{font:700 28px 'Manrope',sans-serif;margin-top:8px}
+.role-desc{font-size:14.5px;color:#a5b7c1;margin-top:6px}
+.role-example{border:1px solid #ffffff20;background:#152434;border-radius:10px;padding:12px 20px;margin-top:16px;display:flex;gap:16px;align-items:center}
+.role-example span{color:#7fa0ad;font:9px 'DM Mono',monospace;letter-spacing:.1em}
+.role-example b{font-size:12.5px}
+.quiz-stack{width:100%;max-width:860px;display:grid;gap:10px}
+.qrow{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 18px;border-radius:10px;background:#152434;border:1px solid var(--line);transition:.2s}
+.qrow.ok{border-color:var(--teal);background:#143536}
+.qrow.bad{border-color:var(--rose);background:#331e24}
+.qrow span{font-size:13.5px}
+/* Architecture & Animated Flows */
+.architecture{display:flex;align-items:center;gap:18px;width:100%;max-width:900px}
+.arch-node{width:195px;min-height:168px;padding:16px;border:1px solid #ffffff22;border-radius:16px;background:#172a3a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;text-align:center;transition:.25s}
+.arch-node.lit{border-color:var(--teal);background:#16393c;transform:scale(1.04);box-shadow:0 0 26px rgba(96,224,192,.25)}
+.arch-node.lit-o{border-color:var(--orange);background:#332622;transform:scale(1.04);box-shadow:0 0 26px rgba(255,173,112,.25)}
+.arch-emoji{font-size:40px}
+.arch-node b{font:11px 'DM Mono',monospace;color:var(--teal);letter-spacing:.14em}
+.server-node b{color:var(--orange)}
+.arch-node small{color:#95a9b8;font-size:11px}
+.server-stack{width:56px;display:grid;gap:6px}
+.server-stack i{height:14px;border-radius:4px;background:#31495b;border:1px solid #698b9b;position:relative;display:block}
+.server-stack i:after{content:'';width:5px;height:5px;border-radius:50%;background:var(--orange);position:absolute;right:7px;top:4px}
+.arch-middle{flex:1;display:flex;flex-direction:column;gap:12px}
+.arrow-label{font:10px 'DM Mono',monospace;letter-spacing:.12em;text-align:center}
+.req-label{color:var(--teal)}.res-label{color:var(--orange)}
+.road{height:3px;background:rgba(96,224,192,.35);position:relative;border-radius:4px}
+.road:after{content:'▶';position:absolute;right:-2px;top:-9px;color:var(--teal);font-size:13px}
+.reverse-road{background:rgba(255,173,112,.35)}
+.reverse-road:after{content:'◀';right:auto;left:-2px;color:var(--orange)}
+.traveller{position:absolute;width:12px;height:12px;border-radius:50%;background:#d8fff4;top:-4.5px;left:6%;box-shadow:0 0 12px var(--teal);animation:travel 2.8s ease-in-out infinite}
+.reverse-traveller{background:#ffe5d2;left:84%;box-shadow:0 0 12px var(--orange);animation:travelBack 2.8s ease-in-out infinite}
+@keyframes travel{0%{left:4%}100%{left:90%}}
+@keyframes travelBack{0%{left:90%}100%{left:4%}}
+.step-dot{position:absolute;width:14px;height:14px;border-radius:50%;top:-5.5px;opacity:0;transition:left .75s ease,opacity .2s}
+.step-dot.teal{background:var(--teal);box-shadow:0 0 14px var(--teal)}
+.step-dot.orange{background:var(--orange);box-shadow:0 0 14px var(--orange)}
+/* Envelope / Internet / HTTP / URL */
+.envelope-stage{display:flex;align-items:center;gap:5vw;padding:24px 44px;border-radius:18px;background:#142637;border:1px solid #ffffff20;min-width:min(620px,92%)}
+.envelope{font-size:70px;color:var(--teal);display:flex;flex-direction:column;align-items:center}
+.envelope span{font:10px 'DM Mono',monospace;letter-spacing:.15em}
+.res-stage .envelope{color:var(--orange)}
+.envelope-copy .stamp{font:10px 'DM Mono',monospace;letter-spacing:.15em;color:var(--teal)}
+.res-stage .stamp{color:var(--orange)}
+.envelope-copy strong{display:block;font:700 25px 'Manrope',sans-serif;margin:10px 0}
+.envelope-copy small{color:#96aab8;font-size:12.5px}
+.internet-map{display:flex;align-items:center;gap:26px;width:100%;max-width:850px;flex-wrap:wrap;justify-content:center}
+.device{width:165px;height:150px;border:1px solid #ffffff22;background:#172b3b;border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;font-size:40px}
+.device b{font:11px 'DM Mono',monospace;color:#bad0d9}
+.web-lines{width:350px;height:150px;position:relative;display:flex;align-items:center;justify-content:center}
+.web-lines i{position:absolute;width:100%;border-top:1px dashed #548a96;transform:rotate(14deg)}
+.web-lines i:nth-child(2){transform:rotate(-14deg)}.web-lines i:nth-child(3){transform:none}
+.cloud-shape{z-index:1;background:#183d46;border:1px solid #60e0c077;border-radius:40px;padding:22px 34px;color:var(--teal);font-size:34px;text-align:center}
+.cloud-shape small{display:block;font:9px 'DM Mono',monospace;letter-spacing:.16em}
+.protocol-visual{display:flex;align-items:center;gap:26px;flex-wrap:wrap;justify-content:center}
+.speech{background:#17303d;padding:15px 18px;border-radius:12px;color:#bdd2d9;font-size:13px;max-width:210px;border:1px solid var(--line)}
+.speech.right{background:#352a26;color:#ffd2b5}
+.protocol-book{width:185px;height:185px;border:1px solid #60e0c077;background:linear-gradient(140deg,#204349,#172a35);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;box-shadow:8px 9px 0 #0a1119}
+.book-spine{position:absolute;left:0;top:0;bottom:0;width:14px;background:var(--teal);border-radius:9px 0 0 9px}
+.protocol-book b{font:800 30px 'Manrope',sans-serif;color:var(--teal)}
+.protocol-book span{font:8px 'DM Mono',monospace;letter-spacing:.1em;color:#b6ced1;margin-top:6px}
+.url-visual{width:100%;max-width:840px}
+.address-bar{background:#f4f6f8;border-radius:11px;padding:16px 20px;color:#293b47;font:16px 'DM Mono',monospace;box-shadow:0 12px 30px #0003;display:flex;flex-wrap:wrap;align-items:center;gap:4px}
+.url-seg{padding:4px 7px;border-radius:6px;cursor:pointer;transition:.18s}
+.url-seg:hover,.url-seg.active{background:#d7f2ea;outline:2px solid #1b8c7c}
+.url-parts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+.url-card{background:#172b3a;border:1px solid var(--line);padding:15px;border-radius:9px;cursor:pointer;transition:.18s}
+.url-card.active{border-color:var(--teal);background:#15383c}
+.url-card b{display:block;color:var(--teal);font:13px 'DM Mono',monospace}
+.url-card span{display:block;color:#97acb8;font-size:11.5px;margin-top:6px;line-height:1.45}
+/* Methods / Status / Body / JSON */
+.method-visual{display:flex;gap:18px;align-items:center;flex-wrap:wrap;justify-content:center}
+.method-ticket{background:#172a3a;border:1px solid #ffffff22;border-radius:12px;padding:22px 24px;width:210px;display:flex;flex-direction:column;gap:8px;cursor:pointer;transition:.2s}
+.method-ticket.active{border-color:var(--teal);background:#153638;transform:translateY(-2px)}
+.method-ticket span{font:9px 'DM Mono',monospace;letter-spacing:.15em;color:#90a9b5}
+.method-ticket b{font:800 30px 'Manrope',sans-serif;color:var(--teal)}
+.method-ticket small{color:#a0b2bd;font-size:12.5px}
+.action-card{width:min(560px,95%);border-radius:16px;background:#172b3b;border:1px solid #ffffff22;padding:22px;text-align:center}
+.action-icon{font-size:40px}.action-word{font:800 32px 'Manrope',sans-serif;color:var(--teal);margin:4px}
+.action-example{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.mini-request,.mini-result{padding:12px;border-radius:8px;font:11px 'DM Mono',monospace;background:#0f1a26;color:#b5cbd2;text-align:left;line-height:1.5}
+.mini-result{background:#153a37;color:#a8ecd7}
+.status-row{display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap}
+.status-tile{width:165px;height:130px;background:#142635;border:1px solid #ffffff1f;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:.2s}
+.status-tile:hover,.status-tile.active{transform:translateY(-3px);border-color:var(--teal);background:#17353d}
+.status-tile strong{font:800 34px 'Manrope',sans-serif}
+.status-tile span{font-size:12px;color:#a5b7c0}
+.status-tile.success strong{color:#68e0ba}.status-tile.missing strong{color:#ffc079}
+.status-tile.auth strong{color:#80b6ff}.status-tile.problem strong{color:#ff8585}
+.single-status{width:min(600px,94%);display:flex;align-items:center;gap:28px;padding:30px;border-radius:15px;background:#153b35;border:1px solid #61ddb18a}
+.bad-status{background:#3b2b25;border-color:#ffad7077}
+.status-symbol{width:80px;height:80px;border-radius:50%;background:#1a584a;display:flex;align-items:center;justify-content:center;font-size:40px;color:#78e7c5;flex-shrink:0}
+.bad-status .status-symbol{background:#61402d;color:#ffc18f}
+.status-code{font:800 30px 'Manrope',sans-serif;color:#6be0b7}.bad-status .status-code{color:#ffbf8c}
+.status-title{font-size:16px;font-weight:700;margin-top:4px}
+.body-visual{display:flex;align-items:center;gap:40px;flex-wrap:wrap;justify-content:center}
+.response-shell{width:390px;background:#172a39;border:1px solid #ffffff20;border-radius:13px;overflow:hidden}
+.shell-head{padding:11px 15px;font:9px 'DM Mono',monospace;letter-spacing:.14em;color:#8fa6b5;background:#1e3548}
+.shell-code{padding:18px}.shell-status{font:11px 'DM Mono',monospace;color:#73e5bc;margin-bottom:14px}
+.shell-main{background:#0d1925;padding:16px;border-radius:8px}
+.shell-main span{font:9px 'DM Mono',monospace;color:#ffb17c;display:block;margin-bottom:8px}
+.shell-main b{font-size:14px}
+.body-bracket{font-size:14.5px;max-width:250px;color:#b0c0c8;line-height:1.5;border-left:2px solid var(--orange);padding-left:16px}
+.json-visual{display:grid;grid-template-columns:1.25fr .75fr;gap:22px;width:100%;max-width:880px;align-items:center}
+.json-card{background:#0d1823;border:1px solid #ffffff22;border-radius:13px;overflow:hidden;box-shadow:0 15px 40px #0003}
+.json-head{display:flex;justify-content:space-between;padding:12px 16px;background:#192c3b;color:#92a7b4;font:9px 'DM Mono',monospace;letter-spacing:.13em}
+.json-head b{color:var(--teal)}
+.json-card pre{font:13px/1.75 'DM Mono',monospace;color:#d7e3e5;padding:18px;margin:0;white-space:pre-wrap}
+.json-card pre i{color:#80b9ff;font-style:normal}.json-card pre em{color:#a7e8c2;font-style:normal}.json-card pre strong{color:#ffbe8d}
+.json-meaning{display:flex;flex-direction:column;gap:12px}
+.json-meaning .jm-row{display:flex;gap:12px;align-items:center}
+.json-meaning i{font:12px 'DM Mono',monospace;color:#8ec9ff;min-width:74px;font-style:normal}
+.json-meaning span{font-size:12px;color:#a7bac5}
+.analogy-strip{background:#183c40;border-left:3px solid var(--teal);padding:11px 14px;color:#c2ddd9;font-size:12px;line-height:1.5;border-radius:5px}
+/* API / Endpoints / Pipeline / Labs */
+.api-analogy{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;width:100%;max-width:880px}
+.customer,.kitchen{width:185px;min-height:155px;padding:14px;background:#172b3a;border:1px solid #ffffff22;border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center}
+.customer div,.kitchen div{font-size:36px}.customer b,.kitchen b{font-size:13.5px}.customer small,.kitchen small{font-size:10.5px;color:#92a7b2}
+.menu{width:270px;background:var(--paper);color:#1b2a34;padding:14px 16px;border-radius:11px;box-shadow:0 15px 35px #0004}
+.menu-title{font:10px 'DM Mono',monospace;color:#2b6861;letter-spacing:.14em;margin-bottom:8px;font-weight:700}
+.menu-row{padding:7px 0;border-bottom:1px solid #d7ded7;font-size:12px}
+.menu>small{font:9px 'DM Mono',monospace;color:#356f68;display:block;margin-top:8px}
+.endpoint-visual{display:flex;align-items:center;gap:4vw;width:100%;max-width:880px;justify-content:center}
+.api-building{width:390px;background:#172a39;border:1px solid #ffffff25;border-radius:12px;overflow:hidden}
+.building-head{padding:14px 16px;background:#223e4a;color:var(--teal);font:11px 'DM Mono',monospace;letter-spacing:.12em}
+.counter{padding:13px 16px;border-bottom:1px solid #ffffff14;color:#c0d0d6;font:12.5px 'DM Mono',monospace;display:flex;justify-content:space-between;cursor:pointer;transition:.16s}
+.counter:hover{background:#1c3342}
+.counter span{font-size:10px;color:#94aab7}
+.counter.active{background:#163e3b;border-left:4px solid var(--teal);color:#fff}
+.endpoint-callout{max-width:300px}
+.endpoint-callout strong{display:block;font:800 18px 'DM Mono',monospace;color:var(--teal);margin:8px 0;word-break:break-all}
+.endpoint-callout span{font-size:13px;color:#a5b7c0;line-height:1.5;display:block}
+.api-flow{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;flex-wrap:wrap}
+.flow-step{min-width:130px;padding:18px 14px;background:#172c3b;border:1px solid #ffffff22;border-radius:11px;text-align:center;display:flex;flex-direction:column;gap:6px;transition:.25s}
+.flow-step.lit{border-color:var(--teal);background:#153a3d;transform:translateY(-4px);box-shadow:0 0 22px rgba(96,224,192,.25)}
+.flow-step b{font:800 17px 'DM Mono',monospace;color:var(--teal)}
+.flow-step span{font-size:10.5px;color:#91a7b4}
+.flow-arrow{font-size:20px;color:#7796a9}
+.server-mini b{color:var(--orange)}.response-mini b{color:var(--blue)}
+/* Break Timer */
+.break-card{background:#152534;border:1px solid rgba(255,173,112,.4);border-radius:18px;padding:30px 48px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px}
+.break-clock{font:800 66px/1 'DM Mono',monospace;color:var(--orange);letter-spacing:.04em}
+/* Lab / Live URL / Postman / DevTools */
+.lab-setup{display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap}
+.lab-card{width:215px;height:168px;background:#172b3b;border:1px solid #ffffff22;border-radius:13px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;text-align:center}
+.lab-icon{font-size:36px}.lab-card b{font-size:16px}.lab-card span{font-size:11.5px;color:#a2b4bf}.lab-card small{font:9px 'DM Mono',monospace;color:var(--teal)}
+.lab-rules{max-width:760px;flex-basis:100%;border-left:3px solid var(--orange);background:#33281f;padding:12px 16px;display:flex;gap:14px;align-items:center;border-radius:6px}
+.lab-rules b{color:#ffc08d;font:10px 'DM Mono',monospace;letter-spacing:.1em;white-space:nowrap}
+.lab-rules span{font-size:12px;color:#e4c8b0}
+.live-url{width:100%;max-width:740px}
+.browser-url{background:#f2f4f6;border-radius:12px;overflow:hidden;color:#1c2a34;box-shadow:0 18px 55px #0005}
+.browser-tab{height:32px;background:#dbe1e5;padding:8px 16px;font-size:10px;color:#5f6e78}
+.browser-address{background:#fff;padding:12px 16px;font:12px 'DM Mono',monospace;border-bottom:1px solid #dbe2e6}
+.browser-page{padding:20px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.open-live{display:inline-block;background:#176e66;color:white;border-radius:7px;padding:9px 15px;text-decoration:none;font:10px 'DM Mono',monospace;letter-spacing:.08em}
+.tool-visual{display:flex;align-items:center;gap:42px;flex-wrap:wrap;justify-content:center}
+.postman-mark{font-size:96px;color:#ff8956;filter:drop-shadow(0 12px 25px #0006)}
+.tool-definition{max-width:440px}
+.tool-name{font:10px 'DM Mono',monospace;color:#ff9d6e;letter-spacing:.18em}
+.tool-definition strong{display:block;font:700 26px 'Manrope',sans-serif;margin:10px 0}
+.tool-definition p{font-size:14px;color:#a4b7c1;line-height:1.5}
+.tool-flow{display:flex;align-items:center;gap:10px;margin-top:16px;font:10px 'DM Mono',monospace;color:#c4d4da}
+.tool-flow span{background:#1b3040;border:1px solid #ffffff22;padding:7px 10px;border-radius:5px}
+.postman-screen{width:min(820px,96%);background:#f4f6f7;color:#24323b;border-radius:11px;overflow:hidden;box-shadow:0 20px 60px #0007}
+.pm-top{height:32px;background:#20242b;color:white;padding:8px 14px;display:flex;justify-content:space-between;font:10px 'DM Mono',monospace}
+.pm-request{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid #dce2e6}
+.pm-request select,.pm-request input{border:1px solid #cbd5dc;border-radius:5px;padding:9px 10px;font:11.5px 'DM Mono',monospace;color:#1e2c36;background:#fff}
+.pm-request input{flex:1}
+.pm-send{background:#146ab1;color:white;border:none;padding:9px 16px;border-radius:5px;font:11px 'DM Mono',monospace;cursor:pointer;font-weight:700}
+.pm-response{padding:14px 16px;min-height:165px}
+.pm-status{font:11px 'DM Mono',monospace;color:#15936c;margin-bottom:10px;font-weight:700}
+.pm-response pre{font:12px/1.6 'DM Mono',monospace;margin:0;color:#233540;background:#e8eef2;padding:12px;border-radius:7px;max-height:150px;overflow:auto}
+.task-board{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;width:100%}
+.task-step{background:#172b3b;border:1px solid #ffffff21;border-radius:10px;padding:16px 13px;min-height:155px;display:flex;flex-direction:column;gap:9px;cursor:pointer;transition:.18s}
+.task-step.done{border-color:var(--teal);background:#153a38}
+.task-step b{font:12px 'DM Mono',monospace;color:var(--teal)}
+.task-step strong{font:700 15px 'Manrope',sans-serif}
+.task-step span{font-size:11px;color:#9fb2bd;line-height:1.45;overflow-wrap:anywhere}
+.message-reading{display:flex;align-items:stretch;gap:18px;width:100%;max-width:900px}
+.msg-column{flex:1;background:#132a39;border:1px solid #ffffff22;border-radius:12px;padding:18px}
+.msg-column label{font:10px 'DM Mono',monospace;color:var(--teal);letter-spacing:.15em}
+.response-column label{color:var(--orange)}
+.msg-column pre{font:12.5px/1.8 'DM Mono',monospace;white-space:pre-wrap;color:#d5e2e5;background:#0d1924;padding:14px;border-radius:7px;margin:10px 0}
+.tok-click{padding:2px 6px;border-radius:4px;cursor:pointer;background:rgba(96,224,192,.14);color:#8af2d8;transition:.15s}
+.tok-click:hover{background:var(--teal);color:#0b171d}
+.tok-click.o{background:rgba(255,173,112,.16);color:#ffc99c}
+.tok-click.o:hover{background:var(--orange);color:#0b171d}
+/* Interactive DevTools */
+.devtools-sim{width:min(860px,96%);background:#f4f6f8;color:#1d2b35;border-radius:11px;overflow:hidden;box-shadow:0 18px 50px #0006}
+.dt-bar{background:#dce3e7;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;font:10px 'DM Mono',monospace;color:#4a5d68}
+.dt-grid{display:grid;grid-template-columns:1fr 1.15fr;min-height:220px;background:#fff}
+.dt-list{border-right:1px solid #dde3e8}
+.dt-row{display:flex;justify-content:space-between;padding:10px 14px;border-bottom:1px solid #edf1f4;font:11px 'DM Mono',monospace;cursor:pointer}
+.dt-row:hover,.dt-row.active{background:#e2f4ef;color:#0e574e;font-weight:700}
+.dt-detail{padding:12px 14px;background:#fafcfd}
+.dt-detail pre{font:11px/1.6 'DM Mono',monospace;margin:8px 0 0;background:#eef3f6;padding:10px;border-radius:6px;white-space:pre-wrap}
+.numbered-steps{display:grid;grid-template-columns:repeat(5,1fr);gap:11px;width:100%}
+.numbered-steps div{background:#172b3b;border:1px solid #ffffff22;border-radius:10px;padding:16px 14px;display:flex;flex-direction:column;gap:14px;min-height:142px}
+.numbered-steps b{font:18px 'DM Mono',monospace;color:var(--teal)}
+.numbered-steps span{font-size:12px;color:#b4c4cc;line-height:1.5}
+kbd{font:10px 'DM Mono',monospace;border:1px solid #7e98a8;border-radius:3px;padding:2px 5px;color:#dce8e9}
+/* 6-Step AI Architecture Finale */
+.ai-pipe{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;width:100%;max-width:1040px}
+.ai-stop{background:#152534;border:1px solid var(--line);border-radius:11px;padding:14px 10px;text-align:center;cursor:pointer;transition:.22s;display:flex;flex-direction:column;align-items:center;gap:6px}
+.ai-stop.done{border-color:rgba(96,224,192,.45);background:#143036}
+.ai-stop.active{border-color:var(--teal);background:#154043;transform:translateY(-4px);box-shadow:0 0 24px rgba(96,224,192,.28)}
+.ai-stop .ico{font-size:28px}.ai-stop b{font:700 12px 'Manrope',sans-serif}.ai-stop small{font:9px 'DM Mono',monospace;color:var(--teal)}
+.ai-inspector{width:100%;max-width:1040px;display:grid;grid-template-columns:1.1fr .9fr;gap:12px}
+.ai-card{background:#111f2d;border:1px solid var(--line);border-radius:11px;padding:14px 16px}
+.ai-card pre{margin:6px 0 0;font:11.5px/1.55 'DM Mono',monospace;color:#bfece0;white-space:pre-wrap}
+/* Recap, Exit, Resources */
+.recap-flow{display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap}
+.recap-node{width:112px;height:112px;background:#172c3b;border:1px solid #ffffff23;border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font-size:26px;cursor:pointer;transition:.2s}
+.recap-node.lit{border-color:var(--teal);background:#153d3e;transform:translateY(-3px)}
+.recap-node b{font:10px 'DM Mono',monospace;color:#c1d2d8}
+.recap-flow>i{font-style:normal;color:var(--teal);font-size:18px}
+.exit-card{display:flex;align-items:center;gap:26px;max-width:780px;background:#173038;border:1px solid #60e0c077;border-radius:15px;padding:26px 32px}
+.exit-mark{font:800 56px 'Manrope',sans-serif;color:var(--teal)}
+.exit-card span{font:10px 'DM Mono',monospace;color:var(--teal);letter-spacing:.15em}
+.exit-card strong{display:block;font:700 22px 'Manrope',sans-serif;margin:8px 0}
+.exit-card small{color:#9fb3bd;font-size:12.5px}
+.resource-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;max-width:960px}
+.resource-card{min-height:130px;display:flex;flex-direction:column;gap:7px;text-decoration:none;color:#ecf4f4;background:#172a39;border:1px solid #ffffff20;border-radius:10px;padding:16px;transition:transform .2s,border-color .2s}
+.resource-card:hover{transform:translateY(-3px);border-color:var(--teal)}
+.resource-card span{font:9px 'DM Mono',monospace;color:var(--teal);letter-spacing:.12em}
+.resource-card b{font:700 15px 'Manrope',sans-serif}
+.resource-card small{font-size:11px;line-height:1.45;color:#9db0bc}
+.resource-card i{font:9px 'DM Mono',monospace;color:#ffb98d;font-style:normal;margin-top:auto;letter-spacing:.1em}
+.resource-card.live-resource{background:#163a36;border-color:#60e0c077}
+@media(max-width:860px){
+.help{display:none}
+.hero-grid,.json-visual,.ai-inspector,.dt-grid{grid-template-columns:1fr}
+.hero-art{display:none}
+.ladder-wrap,.resource-grid,.timeline,.task-board,.numbered-steps,.ai-pipe{grid-template-columns:repeat(2,1fr)}
+.time-break{grid-column:1/3}
+.single-concept,.single-concept.reverse,.endpoint-visual,.message-reading{flex-direction:column}
+.definition-card,.browser-window,.api-building{width:100%;max-width:440px}
+}
+</style>
+</head>
+<body>
+<div class="progress"><span id="progressBar"></span></div>
+<div class="help"><span class="key">←</span> <span class="key">→</span> navigate · <span class="key">T</span> teacher cue · <span class="key">G</span> all slides</div>
+<div class="deck" id="deck">
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>OPENING</span><b>00–03</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">OPENING</div><h1>AI Backend Master Course</h1><p>Class 01 · 3 hours · From a click on your screen to a reply from a server</p></div>
+<div class="visual-area">
+<div class="hero-grid">
+<div class="hero-copy">
+<div class="pill">20-CLASS COURSE · CLASS 01</div>
+<div class="hero-kicker">THE INVISIBLE JOURNEY</div>
+<div class="hero-big">A click.<br><em>A request.</em><br>A reply.</div>
+<p class="hero-sub">Understand the hidden communication behind ChatGPT, Uber, and every modern app — before we dive into programming, ML, and neural networks.</p>
+</div>
+<div class="hero-art">
+<div class="orbit o1"></div><div class="orbit o2"></div>
+<div class="node phone"><span>YOUR SCREEN</span><div class="phone-ui"><b>ChatGPT / Web App</b><div class="bubble user">Hello AI 👋</div><div class="bubble bot">Hi! How can I help?</div></div></div>
+<div class="node cloud">↗<small>INTERNET</small></div>
+<div class="node server"><div class="rack"><i></i><i></i><i></i></div><small>CLOUD SERVER</small></div>
+<div class="flow-line line-a"></div><div class="flow-line line-b"></div>
+<div class="tag tag-a">REQUEST →</div><div class="tag tag-b">← RESPONSE</div>
+</div>
+</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Say to Sadmam</b>Start with his message: "Today we won't train a neural network yet. First, we map the road a message travels every time you click Send in an AI app."<hr><b>Banglish Note</b>Prothome relax kore bolo — ajke kono coding memorization nai, shudhu live workflow ar visual foundation.</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>CLASS ROUTE</span><b>03–06</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">CLASS ROUTE</div><h1>Today's 180-minute route</h1><p>A steady flow of visual concepts, interactive simulations, and real hands-on practice.</p></div>
+<div class="visual-area">
+<div class="timeline">
+<div class="time-item"><b>00–30</b><strong>See the two sides</strong><span>Frontend screen vs Backend work</span></div>
+<div class="time-item"><b>30–60</b><strong>Meet the roles</strong><span>Browser, Client, Server, Request, Response</span></div>
+<div class="time-item"><b>60–80</b><strong>Follow a message</strong><span>Internet, HTTP, URL &amp; Methods</span></div>
+<div class="time-break">☕ 10 MIN LIVE BREAK</div>
+<div class="time-item"><b>90–115</b><strong>Read the messages</strong><span>GET, POST, Status Codes, Body &amp; JSON</span></div>
+<div class="time-item"><b>115–135</b><strong>Understand the doorway</strong><span>APIs, Endpoints &amp; real companies</span></div>
+<div class="time-item highlight"><b>135–160</b><strong>Do it yourself</strong><span>Live Browser + Postman practice</span></div>
+<div class="time-item"><b>160–170</b><strong>Look inside Chrome</strong><span>Inspect real Network requests</span></div>
+<div class="time-item last" style="grid-column:span 2"><b>170–180</b><strong>Connect everything to AI</strong><span>Live 6-step AI flow, recap &amp; exit question</span></div>
+</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Say to Sadmam</b>Walk through the 3-hour pace so he knows there's a real break at minute 80 and hands-on live practice in the second half.</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>20-CLASS MAP</span><b>06–09</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">OUR BOUNDARY</div><h1>Where programming, ML &amp; neural networks fit</h1><p>Click each module to see how today's foundation climbs into real AI engineering.</p></div>
+<div class="visual-area">
+<div class="ladder-wrap" id="modCards">
+<div class="mod-card active" onclick="pickMod(0)"><small>MODULE 1 · WE ARE HERE</small><strong>Web &amp; AI Communication</strong><span>Classes 1–5 · Client, Server, HTTP, APIs, Databases &amp; Deploying</span></div>
+<div class="mod-card" onclick="pickMod(1)"><small>MODULE 2 · CLASSES 6–10</small><strong>Programming &amp; AI Backends</strong><span>Python/JS logic, LLM Prompts, RAG (Chat with PDFs) &amp; Agents</span></div>
+<div class="mod-card" onclick="pickMod(2)"><small>MODULE 3 · CLASSES 11–15</small><strong>Machine Learning</strong><span>Training data, features, classification &amp; real ML pipelines</span></div>
+<div class="mod-card" onclick="pickMod(3)"><small>MODULE 4 · CLASSES 16–20</small><strong>Neural Networks &amp; GPT</strong><span>Neurons, weights, transformers &amp; final AI app architecture</span></div>
+</div>
+<div class="status-line" id="modOut"><strong>Module 1 (Today · Class 01):</strong> Before learning how AI thinks inside, we master the roads every AI app uses to receive prompts and return replies.</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Say to Sadmam</b>Directly answer his message: "You asked about programming, Machine Learning, and Neural Networks — click through Modules 1–4 with me so you see our exact path!"</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>WARM-UP</span><b>09–12</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">WARM-UP</div><h1>Try sending a message in an AI chat app</h1><p>Type anything and press Send — notice the pause before the answer appears.</p></div>
+<div class="visual-area">
+<div class="chat-demo">
+<div class="chat-top"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span><b>AI Chat App</b><small>Interactive demo</small></div>
+<div class="chat-area" id="warmChat">
+<div class="chat-bubble you">Can you help me write a birthday message?</div>
+<div class="chat-bubble ai">Of course — here is a warm birthday message you can send!</div>
+</div>
+<div class="chat-input-bar">
+<input id="warmInp" value="How does the backend of AI work?" placeholder="Type a message…">
+<button onclick="sendWarm()">Send ↑</button>
+</div>
+</div>
+<div class="status-line" id="warmStat">Click <strong>Send ↑</strong> and ask: Where did that reply actually come from? Your keyboard didn't invent it!</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Ask Sadmam</b>Have him press Send. Ask: "During that 1-second pause, did your laptop create that answer, or did your message travel somewhere else?" Let him guess!</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>OBSERVE</span><b>12–15</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">OBSERVE</div><h1>What can your eyes actually see?</h1><p>Turn on X-Ray Mode and click each highlighted piece on the screen.</p></div>
+<div class="visual-area">
+<div class="act-bar"><button class="cbtn" id="xrayBtn" onclick="toggleXray()">🔍 Turn ON Screen X-Ray</button></div>
+<div class="chat-demo" id="xrayDemo">
+<div class="chat-top"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span><b>chatgpt.com</b><small>Visible screen layer</small></div>
+<div class="chat-area">
+<div class="xray-box" style="padding:8px" onclick="pickXray('Message Feed: Displays your bubbles and AI replies on screen.')">
+<div class="xray-tag">① VISIBLE MESSAGE FEED</div>
+<div class="chat-bubble you" style="margin-bottom:8px">Explain backend simply</div>
+<div class="chat-bubble ai">It is the hidden kitchen behind the screen.</div>
+</div>
+</div>
+<div class="chat-input-bar">
+<div class="xray-box" style="flex:1;padding:6px 10px;border:1px solid #d2dbe2;font-size:12.5px;color:#6c7d88" onclick="pickXray('Text Input Box: Captures whatever characters you type on your keyboard.')">
+<div class="xray-tag">② VISIBLE INPUT BOX</div>Message ChatGPT…
+</div>
+<div class="xray-box" style="padding:6px 14px;background:#184e4b;color:#fff;font:600 12px 'DM Mono',monospace" onclick="pickXray('Send Button: Triggers the app to pack your text and send it away.')">
+<div class="xray-tag" style="color:#aef5df">③ BUTTON</div>Send ↑
+</div>
+</div>
+</div>
+<div class="status-line" id="xrayStat">Turn ON X-Ray Mode, then click the Message Feed, Input Box, or Send Button.</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Say to Sadmam</b>Everything highlighted in teal is strictly the visible layer right in front of your eyes — none of the heavy brainwork happens inside those pixels.</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>HIDDEN SIDE</span><b>15–19</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">HIDDEN SIDE</div><h1>What happens outside the screen?</h1><p>Click through the 3 steps to trace an order from the dining room to the kitchen.</p></div>
+<div class="visual-area">
+<div class="act-bar">
+<button class="cbtn active" onclick="setWorld(0)">1. Dining Room (Screen)</button>
+<button class="cbtn ghost" onclick="setWorld(1)">2. Order Travels</button>
+<button class="cbtn ghost" onclick="setWorld(2)">3. Kitchen Works</button>
+</div>
+<div class="two-worlds">
+<div class="world visible-world lit" id="wLeft"><div class="world-icon">🖥️</div><b>What you see</b><span>Text box · Send · Reply</span><small>FRONT OF HOUSE</small></div>
+<div class="corridor"><div class="dashed"></div><div class="parcel" id="wParcel">✉</div><span id="wMid">ready to send</span></div>
+<div class="world hidden-world" id="wRight"><div class="world-icon">⚙️</div><b>What you don't see</b><span>Remote computers do the work</span><small>BACK OF HOUSE</small></div>
+</div>
+<div class="status-line" id="wStat"><strong>Step 1:</strong> Like a restaurant customer, you interact only with the front of house — you never walk behind the stove.</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Analogy</b>Click Steps 1 → 2 → 3. Seeing a restaurant menu is NOT the same as seeing the kitchen — the kitchen work is real even when invisible.</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>KEYWORD 01</span><b>19–23</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">KEYWORD 01</div><h1>Frontend</h1><p>The visible and interactive part of an app that people directly touch and use.</p></div>
+<div class="visual-area">
+<div class="single-concept">
+<div class="browser-window">
+<div class="windowbar"><i></i><i></i><i></i><span>chatgpt.com · app.lovable.dev</span></div>
+<div class="mini-app">
+<div class="mini-nav"><b>MY AI APP</b><span>Home · Chats · Settings</span></div>
+<h3>Welcome back, Sadmam</h3>
+<div class="mini-field">Your email address</div>
+<div class="mini-field">Your password</div>
+<div class="mini-button">Sign in</div>
+</div>
+</div>
+<div class="definition-card">
+<label>FRONTEND</label>
+<strong>The front counter you see &amp; click.</strong>
+<p>Buttons, colors, dark mode, text boxes, menus, and chat screens all live in the Frontend.</p>
+<div class="tool-row" style="justify-content:flex-start"><span class="tool-tag">React</span><span class="tool-tag">Next.js</span><span class="tool-tag">Lovable / v0</span><span class="tool-tag">Figma</span></div>
+</div>
+</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Banglish Note</b>Frontend = user ja chokhe dekhe ar click kore. Vibe coding tools like Lovable/v0 primarily build this beautiful Frontend screen first!</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>KEYWORD 02</span><b>23–27</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">KEYWORD 02</div><h1>Backend</h1><p>The behind-the-scenes software that receives requests, checks rules, and decides what returns.</p></div>
+<div class="visual-area">
+<div class="single-concept reverse">
+<div class="server-illustration">
+<div class="server-box"><div class="server-light"></div><div class="server-slot"></div><div class="server-slot"></div><div class="server-slot"></div><span>RULES &amp; LOGIC</span></div>
+<div class="server-box back"><div class="server-light"></div><div class="server-slot"></div><div class="server-slot"></div><div class="server-slot"></div><span>PRIVATE KEYS</span></div>
+</div>
+<div class="definition-card">
+<label>BACKEND</label>
+<strong>The hidden kitchen &amp; manager.</strong>
+<p>Checks permissions, protects secret keys, talks to databases &amp; AI services, and returns a clean answer.</p>
+<div class="tool-row" style="justify-content:flex-start"><span class="tool-tag">Node.js</span><span class="tool-tag">Python FastAPI</span><span class="tool-tag">Supabase</span><span class="tool-tag">Vercel</span></div>
+</div>
+</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Key Distinction</b>Don't call Backend "only the database" or "only the AI". The Backend is the whole kitchen that coordinates everything behind the scenes.</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>COMPARE</span><b>27–30</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">QUICK CHECK</div><h1>Frontend or Backend? You decide.</h1><p>Click which side of the app handles each real-world job.</p></div>
+<div class="visual-area">
+<div class="quiz-stack" id="fbQuiz">
+<div class="qrow"><span>1. Showing a glowing blue <strong>"Send"</strong> button in dark mode</span><div class="act-bar"><button class="cbtn ghost" onclick="chkFB(this,true)">Frontend</button><button class="cbtn ghost" onclick="chkFB(this,false)">Backend</button></div></div>
+<div class="qrow"><span>2. Secretly checking if a user paid for <strong>ChatGPT Plus</strong></span><div class="act-bar"><button class="cbtn ghost" onclick="chkFB(this,false)">Frontend</button><button class="cbtn ghost" onclick="chkFB(this,true)">Backend</button></div></div>
+<div class="qrow"><span>3. Displaying streaming AI reply bubbles as you scroll</span><div class="act-bar"><button class="cbtn ghost" onclick="chkFB(this,true)">Frontend</button><button class="cbtn ghost" onclick="chkFB(this,false)">Backend</button></div></div>
+<div class="qrow"><span>4. Saving your conversation history permanently for next week</span><div class="act-bar"><button class="cbtn ghost" onclick="chkFB(this,false)">Frontend</button><button class="cbtn ghost" onclick="chkFB(this,true)">Backend</button></div></div>
+</div>
+<div class="status-line" id="fbStat">Ask Sadmam to call out Frontend or Backend for all 4 real-world tasks!</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Interactive Moment</b>Let Sadmam answer aloud before clicking. Rule of thumb: If your eyes touch it → Frontend. If it's hidden rules, billing, or permanent storage → Backend.</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>KEYWORD 03</span><b>30–33</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">KEYWORD 03</div><h1>Browser</h1><p>The software on your computer or phone that opens websites and shows you the Frontend.</p></div>
+<div class="visual-area">
+<div class="role-visual">
+<div class="role-icon">🌐</div>
+<div class="role-label">BROWSER</div>
+<div class="role-main">Google Chrome · Safari · Firefox · Arc</div>
+<div class="role-desc">Displays webpages on your screen and sends messages to remote computers for you.</div>
+<div class="role-example"><span>REAL-WORLD EXAMPLE</span><b>The Chrome window open on your laptop right now!</b></div>
+</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Say to Sadmam</b>Point to the very Chrome tab running these slides — that's a Browser! Later today we'll open Chrome's hidden X-Ray tool (DevTools).</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>KEYWORD 04</span><b>33–37</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">KEYWORD 04</div><h1>Client</h1><p>Any device or app that starts a request — click each device to see how it acts as a Client.</p></div>
+<div class="visual-area">
+<div class="act-bar">
+<button class="cbtn active" onclick="setCli(0)">💻 Laptop Browser</button>
+<button class="cbtn ghost" onclick="setCli(1)">📱 ChatGPT iPhone App</button>
+<button class="cbtn ghost" onclick="setCli(2)">📺 Netflix Smart TV</button>
+</div>
+<div class="role-visual">
+<div class="role-icon" id="cliIco">💻</div>
+<div class="role-label">CLIENT ROLE</div>
+<div class="role-main" id="cliName">MacBook + Google Chrome</div>
+<div class="role-desc" id="cliDesc">Opens chatgpt.com and asks remote computers for AI answers on your behalf.</div>
+<div class="role-example"><span>KEY RULE</span><b id="cliNote">"Client" means the asker — never a paying customer!</b></div>
+</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Important Clarification</b>Beginners often think "Client" means a business customer. In tech, Client simply means the app/device that ASKS for something.</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>KEYWORD 05</span><b>37–41</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">KEYWORD 05</div><h1>Server</h1><p>A powerful 24/7 computer inside a data center that waits for requests and sends back results.</p></div>
+<div class="visual-area">
+<div class="act-bar"><button class="cbtn" onclick="pingSrv()">⚡ Ping Cloud Server (NJ → Virginia)</button></div>
+<div class="architecture">
+<div class="arch-node" id="psC"><div class="arch-emoji">💻</div><b>YOUR CLIENT</b><small>Montclair, NJ</small></div>
+<div class="arch-middle">
+<div class="arrow-label req-label">FIBER CABLE (~230 MILES) →</div>
+<div class="road"><span class="step-dot teal" id="psDot1"></span></div>
+<div class="road reverse-road"><span class="step-dot orange" id="psDot2"></span></div>
+<div class="arrow-label res-label">← REPLY (~24ms)</div>
+</div>
+<div class="arch-node server-node" id="psS"><div class="server-stack"><i></i><i></i><i></i></div><b>DATA CENTER SERVER</b><small>AWS / Azure · Virginia</small></div>
+</div>
+<div class="status-line" id="psLog">Click <strong>"⚡ Ping Cloud Server"</strong> — "The Cloud" isn't in the sky; it's real physical server racks running 24/7!</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Banglish Note</b>"Cloud" mane akash na — AWS, Azure, Google er giant air-conditioned warehouse e rack computer 24/7 on thake. Button click kore live ping animation dekhao!</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>THE MODEL</span><b>41–45</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">THE CORE MODEL</div><h1>Client ↔ Server</h1><p>The Client asks. The Server handles the work and replies.</p></div>
+<div class="visual-area">
+<div class="architecture">
+<div class="arch-node client-node"><div class="arch-emoji">💻</div><b>CLIENT</b><small>Browser / Phone App</small></div>
+<div class="arch-middle">
+<div class="arrow-label req-label">REQUEST →</div>
+<div class="road"><span class="traveller"></span></div>
+<div class="road reverse-road"><span class="traveller reverse-traveller"></span></div>
+<div class="arrow-label res-label">← RESPONSE</div>
+</div>
+<div class="arch-node server-node"><div class="server-stack"><i></i><i></i><i></i></div><b>SERVER</b><small>Handles the work 24/7</small></div>
+</div>
+<div class="tool-row"><span class="tool-tag">ChatGPT App ↔ OpenAI Servers</span><span class="tool-tag">Instagram App ↔ Meta Servers</span><span class="tool-tag">Uber App ↔ Uber Servers</span></div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Check Understanding</b>Point to the top teal line and bottom orange line. Ask Sadmam: "Which direction does the Request go? Which direction does the Response go?"</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>KEYWORD 06</span><b>45–49</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">KEYWORD 06</div><h1>Request</h1><p>The outgoing message asking another computer or service to do something.</p></div>
+<div class="visual-area">
+<div class="envelope-stage req-stage">
+<div class="envelope">✉<span>REQUEST</span></div>
+<div class="envelope-copy">
+<div class="stamp">OUTGOING MESSAGE · CLIENT → SERVER</div>
+<strong>“Please do this for me.”</strong>
+<small>Example: “Show me today's weather” or “Generate an AI summary of this paragraph.”</small>
+</div>
+</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Analogy</b>A customer hands an order slip to the waiter — that order slip is the Request. Ask Sadmam for one real-life example of a Request.</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>KEYWORD 07</span><b>49–53</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">KEYWORD 07</div><h1>Response</h1><p>The return message sent back after the server finishes handling your request.</p></div>
+<div class="visual-area">
+<div class="envelope-stage res-stage">
+<div class="envelope">✉<span>RESPONSE</span></div>
+<div class="envelope-copy">
+<div class="stamp">RETURN MESSAGE · SERVER → CLIENT</div>
+<strong>“Here is the result.”</strong>
+<small>A Response can bring back a webpage, an AI answer, data — OR an error saying something wasn't found.</small>
+</div>
+</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Analogy</b>The waiter returns either with your food OR saying "Sorry, we sold out of that dish." Both count as a Response!</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>LIVE ROUND TRIP</span><b>53–60</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">STEP-BY-STEP FLOW</div><h1>One message goes out. One answer comes back.</h1><p>Click <strong>Next Step →</strong> to control every stage of the request–response loop live.</p></div>
+<div class="visual-area">
+<div class="act-bar">
+<button class="cbtn" id="rtNext" onclick="stepRT()">▶ Next Step (1 / 4)</button>
+<button class="cbtn ghost" onclick="autoRT()">⚡ Auto-Play Loop</button>
+<button class="cbtn ghost" onclick="resetRT()">↺ Reset</button>
+</div>
+<div class="architecture">
+<div class="arch-node" id="rtC"><div class="arch-emoji">💻</div><b>CLIENT</b><small>Browser / App</small></div>
+<div class="arch-middle">
+<div class="arrow-label req-label">REQUEST →</div>
+<div class="road"><span class="step-dot teal" id="rtD1"></span></div>
+<div class="road reverse-road"><span class="step-dot orange" id="rtD2"></span></div>
+<div class="arrow-label res-label">← RESPONSE</div>
+</div>
+<div class="arch-node server-node" id="rtS"><div class="server-stack"><i></i><i></i><i></i></div><b>SERVER</b><small>Backend Kitchen</small></div>
+</div>
+<div class="status-line" id="rtLog">Press <strong>▶ Next Step</strong> to walk through all 4 moments of a live round trip.</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Teaching Move</b>Pause right after Step 2 (Request arrives at Server) and ask Sadmam: "What happens now before anything goes back to your screen?" Then press Step 3 &amp; 4!</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>KEYWORD 08</span><b>60–65</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">KEYWORD 08</div><h1>Internet</h1><p>The worldwide road network connecting billions of clients and servers together.</p></div>
+<div class="visual-area">
+<div class="internet-map">
+<div class="device">💻<b>Your laptop</b></div>
+<div class="web-lines"><i></i><i></i><i></i><div class="cloud-shape">☁<small>INTERNET</small></div></div>
+<div class="device">🗄️<b>Remote Server</b></div>
+</div>
+<div class="status-line">Connected highways between computers — not one giant computer, and not magic in the sky.</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Keep It Simple</b>Highway analogy: Internet = roads; Request = delivery truck travelling on those roads. Skip DNS/routers/IP math for today.</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>KEYWORD 09</span><b>65–70</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">KEYWORD 09</div><h1>HTTP &amp; HTTPS</h1><p>The shared language rules that both client and server agree to speak.</p></div>
+<div class="visual-area">
+<div class="act-bar">
+<button class="cbtn ghost" id="httpBtn0" onclick="setHttp(false)">HTTP (Open Postcard)</button>
+<button class="cbtn active" id="httpBtn1" onclick="setHttp(true)">🔒 HTTPS (Sealed Encrypted Box)</button>
+</div>
+<div class="protocol-visual">
+<div class="speech left">“Can you send me this page?”</div>
+<div class="protocol-book"><div class="book-spine"></div><b id="httpTitle">HTTPS</b><span>SHARED MESSAGE RULES</span></div>
+<div class="speech right">“Understood! Here is your result.”</div>
+</div>
+<div class="status-line" id="httpStat">🔒 <strong>HTTPS (the 'S' = Secure):</strong> Same HTTP language, wrapped inside an encrypted lock so nobody on public Wi-Fi can spy on your messages.</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Say to Sadmam</b>Don't memorize "Hypertext Transfer Protocol" — just know HTTP is the agreed mail format, and HTTPS adds the padlock icon you see in Chrome.</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>KEYWORD 10</span><b>70–75</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">KEYWORD 10</div><h1>URL</h1><p>The exact postal address on the internet — click each colored segment to inspect it.</p></div>
+<div class="visual-area">
+<div class="url-visual">
+<div class="address-bar">
+<span>🔒</span>
+<span class="url-seg active" id="us0" style="color:#64748b" onclick="pickUrl(0)">https://</span>
+<span class="url-seg" id="us1" style="color:#1b7e72;font-weight:700" onclick="pickUrl(1)">api.openai.com</span>
+<span class="url-seg" id="us2" style="color:#b8682c;font-weight:700" onclick="pickUrl(2)">/v1/chat/completions</span>
+</div>
+<div class="url-parts">
+<div class="url-card active" id="uc0" onclick="pickUrl(0)"><b>1. https://</b><span>Protocol: Secure encrypted connection rules.</span></div>
+<div class="url-card" id="uc1" onclick="pickUrl(1)"><b>2. api.openai.com</b><span>Domain: The exact company building on the internet.</span></div>
+<div class="url-card" id="uc2" onclick="pickUrl(2)"><b>3. /v1/chat/completions</b><span>Path: The specific room inside that building.</span></div>
+</div>
+</div>
+<div class="status-line" id="urlStat">A URL works just like a postal address: <strong>Secure delivery → Company Building → Exact Room Door</strong>.</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Banglish Note</b>Real OpenAI URL ta ekhane dekhano hoyeche! Click each of the 3 segments so Sadmam naturally understands what real AI URLs look like.</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>KEYWORD 11</span><b>75–80</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">KEYWORD 11</div><h1>Method</h1><p>A tiny action verb stamped on every request telling the server WHAT you want to do.</p></div>
+<div class="visual-area">
+<div class="method-visual">
+<div class="method-ticket active" id="mt0" onclick="pickMet(0)"><span>ACTION LABEL</span><b>GET</b><small>“Please show me information.”</small></div>
+<div class="method-ticket" id="mt1" onclick="pickMet(1)"><span>ACTION LABEL</span><b>POST</b><small>“Please receive &amp; process this.”</small></div>
+</div>
+<div class="status-line" id="metStat"><strong>GET</strong> = Read / View (like opening a menu). Click <strong>POST</strong> to compare!</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Say to Sadmam</b>Before our 10-minute break, remember just 2 verbs: GET = fetch/read; POST = send/submit. We test both live right after the break!</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>PAUSE</span><b>80–90</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">HALF-TIME PAUSE</div><h1>10-minute break</h1><p>Stretch, grab water — when we return, we send real live API requests!</p></div>
+<div class="visual-area">
+<div class="break-card">
+<div style="font:10px 'DM Mono',monospace;letter-spacing:.16em;color:var(--teal)">LIVE BREAK COUNTDOWN</div>
+<div class="break-clock" id="brkClock">10:00</div>
+<div class="act-bar">
+<button class="cbtn" id="brkBtn" onclick="toggleBreak()">▶ Start 10-Min Timer</button>
+<button class="cbtn ghost" onclick="resetBreak()">↺ Reset</button>
+</div>
+</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Teacher Tip</b>Take a genuine 10-minute break! Press Start so Sadmam sees exactly when Part 2 begins.</div></div>
+<div class="slide-bottom"><span>CLASS 01 · BREAK</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>KEYWORD 12</span><b>90–94</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">KEYWORD 12</div><h1>GET</h1><p>A request used to read or view existing information without changing anything.</p></div>
+<div class="visual-area">
+<div class="action-card">
+<div class="action-icon">🔍</div>
+<div class="action-word">GET</div>
+<div class="action-example">
+<div class="mini-request"><strong>CLIENT SENDS:</strong><br>GET /chats/history</div>
+<div class="mini-result" id="getOut">Click below to run a live GET request!</div>
+</div>
+<button class="cbtn" onclick="runGetDemo()">▶ Run GET /chats/history</button>
+</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Example</b>Opening YouTube, loading your ChatGPT sidebar, or checking weather — all GET requests because you're only asking to SEE data.</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>KEYWORD 13</span><b>94–98</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">KEYWORD 13</div><h1>POST</h1><p>A request used to send new data so the server can create or process something.</p></div>
+<div class="visual-area">
+<div class="action-card">
+<div class="action-icon">📨</div>
+<div class="action-word" style="color:var(--orange)">POST</div>
+<div class="action-example">
+<div class="mini-request"><strong>CLIENT SENDS:</strong><br>POST /v1/chat<br>Body: "Explain APIs"</div>
+<div class="mini-result" id="postOut">Click below to run a live POST request!</div>
+</div>
+<button class="cbtn orange" onclick="runPostDemo()">▶ Run POST /v1/chat</button>
+</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Compare</b>GET = "Show me." POST = "Here is my prompt/order — please process it!" Every time you chat with ChatGPT, it fires a POST request.</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>KEYWORD 14</span><b>98–102</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">KEYWORD 14</div><h1>Status code</h1><p>A 3-digit shorthand number in every response — click each code to see what the server means.</p></div>
+<div class="visual-area">
+<div class="status-row">
+<div class="status-tile success active" id="st0" onclick="pickSt(0)"><strong>200</strong><span>OK · Worked</span></div>
+<div class="status-tile auth" id="st1" onclick="pickSt(1)"><strong>401</strong><span>Unauthorized</span></div>
+<div class="status-tile missing" id="st2" onclick="pickSt(2)"><strong>404</strong><span>Not Found</span></div>
+<div class="status-tile problem" id="st3" onclick="pickSt(3)"><strong>500</strong><span>Server Error</span></div>
+</div>
+<div class="status-line" id="stLog"><strong>200 OK:</strong> Everything worked smoothly and the server returned your requested data!</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Pattern Tip</b>2xx = Happy green light · 4xx = Caller mistake (missing key or wrong URL) · 5xx = Server kitchen broke!</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>KEYWORD 15</span><b>102–105</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">KEYWORD 15</div><h1>200 OK</h1><p>The green light — the server understood your request and completed it.</p></div>
+<div class="visual-area">
+<div class="single-status ok-status">
+<div class="status-symbol">✓</div>
+<div><div class="status-code">200 OK</div><div class="status-title">Request succeeded</div><p style="font-size:13px;color:#b8d4cc;margin:6px 0 0">Whenever you test an API in Postman or Chrome DevTools, <strong>200 OK</strong> is the signal you want to see first.</p></div>
+</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Quick Check</b>Ask Sadmam: "If Postman shows 200 OK after you press Send, did the server receive and complete your request?" (Yes!)</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>KEYWORD 16</span><b>105–108</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">KEYWORD 16</div><h1>404 Not Found</h1><p>The server is awake and listening — it just couldn't find anything at that specific address.</p></div>
+<div class="visual-area">
+<div class="single-status bad-status">
+<div class="status-symbol">?</div>
+<div><div class="status-code">404 Not Found</div><div class="status-title">Wrong door or typo in the URL</div><p style="font-size:13px;color:#e0c6b5;margin:6px 0 0">The street exists and your Wi-Fi works fine — that exact house number simply doesn't exist.</p></div>
+</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Real Vibe-Coder Tip</b>Whenever you get a 404 while building an app, 90% of the time you made a tiny typo in the URL path!</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>KEYWORD 17</span><b>108–112</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">KEYWORD 17</div><h1>Response body</h1><p>The actual payload carried inside the envelope after the status code.</p></div>
+<div class="visual-area">
+<div class="body-visual">
+<div class="response-shell">
+<div class="shell-head">SERVER RESPONSE ENVELOPE</div>
+<div class="shell-code">
+<div class="shell-status">STATUS: 200 OK</div>
+<div class="shell-main"><span>RESPONSE BODY (THE REAL PAYLOAD)</span><b>“Here is your 3-bullet study plan for Montclair!”</b></div>
+</div>
+</div>
+<div class="body-bracket">Status tells you <strong>if</strong> it worked.<br><br>The <strong>Response Body</strong> carries the actual answer, webpage, or data!</div>
+</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Analogy</b>Status 200 = "Delivered!" stamped on the box. Response Body = the actual shoes inside the box!</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>KEYWORD 18</span><b>112–116</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">KEYWORD 18</div><h1>JSON</h1><p>The universal labeled shipping-box format used by 99% of modern APIs — click 3 real examples.</p></div>
+<div class="visual-area">
+<div class="act-bar">
+<button class="cbtn active" id="jb0" onclick="pickJson(0)">🤖 OpenAI Chat</button>
+<button class="cbtn ghost" id="jb1" onclick="pickJson(1)">🛍️ Online Order</button>
+<button class="cbtn ghost" id="jb2" onclick="pickJson(2)">🌤️ Weather App</button>
+</div>
+<div class="json-visual">
+<div class="json-card"><div class="json-head"><span id="jHead">REAL OPENAI PAYLOAD</span><b>JSON</b></div><pre id="jCode"></pre></div>
+<div class="json-meaning">
+<div class="jm-row"><i>"label"</i><span>Name of the field (always in quotes)</span></div>
+<div class="jm-row"><i>value</i><span>The actual text, number, or true/false</span></div>
+<div class="analogy-strip">Both Python and JavaScript read JSON effortlessly — it is the universal packing box of the internet.</div>
+</div>
+</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Banglish Note</b>JSON dekhe bhoy pawar kichu nai — just {"key": "value"} labeled box! 3ta real product example click kore dekhao je shob API same neat format use kore.</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>KEYWORD 19</span><b>116–122</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">KEYWORD 19</div><h1>API</h1><p>The waiter &amp; menu that lets one software app borrow superpowers from another company.</p></div>
+<div class="visual-area">
+<div class="act-bar">
+<button class="cbtn active" id="ab0" onclick="pickApi(0)">🤖 Your App → OpenAI API</button>
+<button class="cbtn ghost" id="ab1" onclick="pickApi(1)">🚗 Uber → Google Maps API</button>
+<button class="cbtn ghost" id="ab2" onclick="pickApi(2)">💳 Store → Stripe API</button>
+</div>
+<div class="api-analogy">
+<div class="customer"><div id="apIco1">🤖</div><b id="apApp">Your AI Study App</b><small>Needs intelligence</small></div>
+<div class="menu">
+<div class="menu-title">API MENU / WAITER</div>
+<div class="menu-row" id="apM1">1. Generate Chat Reply</div>
+<div class="menu-row" id="apM2">2. Create AI Image</div>
+<div class="menu-row" id="apM3">3. Transcribe Voice</div>
+<small>Agreed ordering contract</small>
+</div>
+<div class="kitchen"><div id="apIco2">⚡</div><b id="apSrv">OpenAI Servers</b><small>Does the heavy work</small></div>
+</div>
+<div class="status-line" id="apStat"><strong>Why startups love APIs:</strong> You don't spend $100M training ChatGPT — you simply order intelligence from OpenAI's API!</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Say to Sadmam</b>Click all 3 real-world apps! Uber didn't launch map satellites — it calls Google Maps API. You don't train a $100M AI model — you call OpenAI/Claude API!</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>KEYWORD 20</span><b>122–128</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">KEYWORD 20</div><h1>Endpoint</h1><p>One exact URL doorway inside an API — click each OpenAI counter below.</p></div>
+<div class="visual-area">
+<div class="endpoint-visual">
+<div class="api-building">
+<div class="building-head">BUILDING: https://api.openai.com</div>
+<div class="counter active" id="ep0" onclick="pickEp(0)">/v1/chat/completions <span>POST</span></div>
+<div class="counter" id="ep1" onclick="pickEp(1)">/v1/images/generations <span>POST</span></div>
+<div class="counter" id="ep2" onclick="pickEp(2)">/v1/audio/transcriptions <span>POST</span></div>
+<div class="counter" id="ep3" onclick="pickEp(3)">/v1/models <span>GET</span></div>
+</div>
+<div class="endpoint-callout">
+<div style="font-size:34px" id="epIco">💬</div>
+<strong id="epPath">/v1/chat/completions</strong>
+<span id="epDesc">The Text &amp; Reasoning counter — send a prompt JSON here to get a ChatGPT-style reply back.</span>
+</div>
+</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Analogy</b>API = the whole hospital building. Endpoint = the exact department door (/chat vs /images vs /audio). Ask Sadmam which door builds a logo generator!</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>CONNECT PIECES</span><b>128–133</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">PUT IT TOGETHER</div><h1>Anatomy of one real API call</h1><p>Click <strong>Step Through Call →</strong> to highlight each piece in sequence.</p></div>
+<div class="visual-area">
+<div class="act-bar"><button class="cbtn" onclick="stepAna()">▶ Step Through Call →</button><button class="cbtn ghost" onclick="resetAna()">↺ Reset</button></div>
+<div class="api-flow">
+<div class="flow-step lit" id="an0"><b>GET</b><span>Method (Action)</span></div>
+<div class="flow-arrow">+</div>
+<div class="flow-step" id="an1"><b>/products</b><span>Endpoint (Door)</span></div>
+<div class="flow-arrow">→</div>
+<div class="flow-step server-mini" id="an2"><b>SERVER</b><span>Processes Request</span></div>
+<div class="flow-arrow">→</div>
+<div class="flow-step response-mini" id="an3"><b>200 OK</b><span>Status + JSON Body</span></div>
+</div>
+<div class="status-line" id="anLog"><strong>Step 1 — Method:</strong> We stamp <code>GET</code> on the envelope because we want to view information.</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Check Understanding</b>Step through 1 → 4. Ask Sadmam to point out which box is the action, which is the door, and which is the reply!</div></div>
+<div class="slide-bottom"><span>CLASS 01 · FOUNDATION</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>PRACTICAL 01</span><b>133–136</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">PRACTICAL 01</div><h1>Let's send a REAL live API request</h1><p>Zero code required — just your browser and an optional API testing desk.</p></div>
+<div class="visual-area">
+<div class="lab-setup">
+<div class="lab-card"><div class="lab-icon">🌐</div><b>Google Chrome</b><span>Already installed</span><small>Required today</small></div>
+<div style="font-size:24px;color:#7792a4">+</div>
+<div class="lab-card"><div class="lab-icon">🟠</div><b>Postman</b><span>API testing desk</span><small>Built-in simulator + optional app</small></div>
+<div class="lab-rules"><b>🔒 SAFETY RULE</b><span>Use only public demo endpoints today. Never paste real passwords, private personal info, or paid OpenAI API keys into public practice tools!</span></div>
+</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Say to Sadmam</b>Tell him Postman Echo is an official free public mirror server made for learning — whatever GET request you send, it echoes back cleanly in JSON.</div></div>
+<div class="slide-bottom"><span>CLASS 01 · PRACTICAL</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>LIVE TASK</span><b>136–140</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">LIVE TASK</div><h1>Step 1 — hit a real endpoint right now</h1><p>Open the live URL in a new Chrome tab, OR click <strong>Test Live Here</strong> to see its JSON response.</p></div>
+<div class="visual-area">
+<div class="live-url">
+<div class="browser-url">
+<div class="browser-tab">New Chrome Tab</div>
+<div class="browser-address">🔒　https://postman-echo.com/get</div>
+<div class="browser-page">
+<b>Send a real GET request to Postman's public server</b>
+<span style="font-size:12px;color:#627480">No code · No login · No API key needed</span>
+<div class="act-bar">
+<a class="open-live" href="https://postman-echo.com/get" target="_blank" rel="noopener">OPEN IN NEW TAB ↗</a>
+<button class="cbtn" style="background:#173d42" onclick="liveEcho()">⚡ Preview Response Right Here</button>
+</div>
+<pre id="echoOut" style="display:none;width:100%;text-align:left;background:#101c28;color:#b8f3df;padding:12px;border-radius:8px;font:11.5px/1.55 'DM Mono',monospace;margin:6px 0 0;overflow:auto;max-height:130px"></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Hands-On Tip</b>Click "OPEN IN NEW TAB ↗" so Sadmam sees raw JSON straight inside Chrome! If Wi-Fi drops, click "Preview Response Right Here" for instant backup.</div></div>
+<div class="slide-bottom"><span>CLASS 01 · PRACTICAL</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>OBSERVE</span><b>140–144</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">OBSERVE</div><h1>Step 2 — read what the server sent back</h1><p>Spot the <code>"url"</code> label inside the JSON response body.</p></div>
+<div class="visual-area">
+<div class="json-visual">
+<div class="json-card"><div class="json-head"><span>REAL ECHO RESPONSE</span><b>200 OK · JSON</b></div><pre>{
+<i>"args"</i>: {},
+<i>"headers"</i>: {
+<i>"host"</i>: <em>"postman-echo.com"</em>
+},
+<i>"url"</i>: <em>"https://postman-echo.com/get"</em>
+}</pre></div>
+<div class="json-meaning">
+<div class="jm-row"><i>"args"</i><span>Extra search parameters (empty right now)</span></div>
+<div class="jm-row"><i>"url"</i><span>The exact endpoint address the server received</span></div>
+<div class="analogy-strip">Your browser just spoke HTTP to a real remote server and received structured JSON back!</div>
+</div>
+</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Say to Sadmam</b>Have him find the "url" field in his real Chrome tab. Ignore extra headers for now — just celebrate his very first live API call!</div></div>
+<div class="slide-bottom"><span>CLASS 01 · PRACTICAL</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>TOOL 01</span><b>144–148</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">REAL-WORLD TOOL 01</div><h1>Postman</h1><p>The #1 testing desk engineers and vibe coders use to fire API requests and inspect JSON.</p></div>
+<div class="visual-area">
+<div class="tool-visual">
+<div class="postman-mark">◉</div>
+<div class="tool-definition">
+<div class="tool-name">POSTMAN</div>
+<strong>A workbench for testing APIs before writing app code.</strong>
+<p>Pick a Method (GET/POST) → paste an Endpoint URL → click Send → read the exact Status Code &amp; JSON Body.</p>
+<div class="tool-flow"><span>YOUR REQUEST</span><b>→</b><span>POSTMAN</span><b>→</b><span>SERVER RESPONSE</span></div>
+</div>
+</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Clarify</b>Postman is NOT a server and NOT an API — it's simply a client testing desk, just like Chrome, but built for sending GET &amp; POST API requests cleanly!</div></div>
+<div class="slide-bottom"><span>CLASS 01 · TOOLS</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>PRACTICAL 02</span><b>148–154</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">INTERACTIVE POSTMAN LAB</div><h1>Fire a live request in our Mini Postman</h1><p>Switch between GET, POST, or a broken URL — then press <strong>Send</strong> to watch the server reply!</p></div>
+<div class="visual-area">
+<div class="postman-screen">
+<div class="pm-top"><span>Postman · Interactive Workbench</span><span>Class 01 Sandbox</span></div>
+<div class="pm-request">
+<select id="pmMet" onchange="syncPmUrl()">
+<option value="GET">GET</option>
+<option value="POST">POST</option>
+</select>
+<input id="pmUrl" value="https://postman-echo.com/get">
+<button class="pm-send" onclick="sendPm()">Send</button>
+</div>
+<div class="pm-response">
+<div class="act-bar" style="justify-content:flex-start;margin-bottom:10px">
+<button class="cbtn ghost" style="padding:5px 10px;font-size:10px" onclick="setPmPreset('GET','https://postman-echo.com/get')">Preset 1: GET /get</button>
+<button class="cbtn ghost" style="padding:5px 10px;font-size:10px" onclick="setPmPreset('POST','https://api.openai.com/v1/chat/completions')">Preset 2: POST OpenAI Chat</button>
+<button class="cbtn ghost" style="padding:5px 10px;font-size:10px" onclick="setPmPreset('GET','https://postman-echo.com/wrong-door')">Preset 3: Wrong URL (404)</button>
+</div>
+<div class="pm-status" id="pmStatus">Ready — choose a preset or press Send!</div>
+<pre id="pmBody">// Response JSON will appear here when you click Send...</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Banglish Note</b>Super practical lab! 3ta preset e click kore Send press koro — Preset 1 (200 OK), Preset 2 (OpenAI POST reply), Preset 3 (404 Not Found)! Real Postman install korar jhamela charai live bujhbe!</div></div>
+<div class="slide-bottom"><span>CLASS 01 · PRACTICAL</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>HANDS-ON</span><b>154–160</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">STUDENT CHALLENGE</div><h1>Sadmam's 5-step solo mission</h1><p>Click each card to check it off as Sadmam completes it on his own screen.</p></div>
+<div class="visual-area">
+<div class="task-board">
+<div class="task-step" onclick="this.classList.toggle('done')"><b>01</b><strong>Pick GET</strong><span>Say aloud: "I am asking to read information."</span></div>
+<div class="task-step" onclick="this.classList.toggle('done')"><b>02</b><strong>Enter URL</strong><span>https://postman-echo.com/get</span></div>
+<div class="task-step" onclick="this.classList.toggle('done')"><b>03</b><strong>Press Send</strong><span>Fire the HTTP request over the internet.</span></div>
+<div class="task-step" onclick="this.classList.toggle('done')"><b>04</b><strong>Spot 200 OK</strong><span>Confirm the server returned a success status.</span></div>
+<div class="task-step" onclick="this.classList.toggle('done')"><b>05</b><strong>Read JSON</strong><span>Point to the "url" field inside the body.</span></div>
+</div>
+<div class="status-line">Teacher rule: hands off the mouse! Let Sadmam click, make a small typo if it happens, and recover proudly.</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Coaching Tip</b>Click each of the 5 boxes as Sadmam completes it so he feels real momentum. Ask him to narrate what he's doing in plain English!</div></div>
+<div class="slide-bottom"><span>CLASS 01 · CHALLENGE</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>CHECKPOINT</span><b>160–163</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">CHECKPOINT</div><h1>Can you decode this live message?</h1><p>Click any highlighted piece inside the Request or Response to verify its role.</p></div>
+<div class="visual-area">
+<div class="message-reading">
+<div class="msg-column">
+<label>OUTGOING REQUEST</label>
+<pre><span class="tok-click" onclick="decMsg('Method (GET): The action label saying we want to read data.')">GET</span> <span class="tok-click" onclick="decMsg('Endpoint URL: The exact destination door inside Postman Echo API.')">https://postman-echo.com/get</span></pre>
+<span style="font-size:12px;color:#9bb0bc">Click either highlighted part above!</span>
+</div>
+<div style="font-size:26px;color:#7796a9;align-self:center">→</div>
+<div class="msg-column response-column">
+<label>RETURN RESPONSE</label>
+<pre><span class="tok-click o" onclick="decMsg('Status Code (200 OK): Server confirms the request succeeded!')">200 OK</span>
+<span class="tok-click o" onclick="decMsg('JSON Response Body: The actual structured data returned inside the envelope.')">{
+"url": "https://postman-echo.com/get"
+}</span></pre>
+<span style="font-size:12px;color:#9bb0bc">Click Status or JSON Body to check!</span>
+</div>
+</div>
+<div class="status-line" id="decOut">Ask Sadmam to name each highlighted piece BEFORE you click it to reveal!</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Activity</b>Point to GET, the URL, 200 OK, and the JSON block one by one. Let Sadmam name them, then click to confirm!</div></div>
+<div class="slide-bottom"><span>CLASS 01 · CHECKPOINT</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>TOOL 02</span><b>163–167</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">REAL-WORLD TOOL 02</div><h1>Chrome DevTools — Network panel</h1><p>Click any row in this interactive Network Panel to inspect what Chrome sends behind the scenes.</p></div>
+<div class="visual-area">
+<div class="devtools-sim">
+<div class="dt-bar"><span>Elements · Console · <strong style="color:#0e6eb8">Network ●</strong></span><span>Filter: Fetch/XHR · Status</span></div>
+<div class="dt-grid">
+<div class="dt-list">
+<div class="dt-row active" id="dr0" onclick="pickDt(0)"><span>POST /api/chat</span><span style="color:#12805c">200 · 620ms</span></div>
+<div class="dt-row" id="dr1" onclick="pickDt(1)"><span>GET /api/chats</span><span style="color:#12805c">200 · 48ms</span></div>
+<div class="dt-row" id="dr2" onclick="pickDt(2)"><span>GET style.css</span><span style="color:#12805c">200 · 14ms</span></div>
+<div class="dt-row" id="dr3" onclick="pickDt(3)"><span>GET /old-page</span><span style="color:#c96d2b">404 · 31ms</span></div>
+</div>
+<div class="dt-detail">
+<div style="font:700 11px 'DM Mono',monospace;color:#115c54" id="dtTitle">INSPECTING: POST /api/chat</div>
+<pre id="dtPre"></pre>
+</div>
+</div>
+</div>
+<div class="status-line">Every vibe coder opens Chrome DevTools (F12 → Network) to see live requests &amp; debug broken apps!</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Banglish Note</b>Click all 4 rows (`POST /api/chat`, `GET /api/chats`, `style.css`, `404`) so Sadmam sees how real engineers inspect what a website is secretly doing!</div></div>
+<div class="slide-bottom"><span>CLASS 01 · TOOLS</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>PRACTICAL 03</span><b>167–171</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">PRACTICAL 03</div><h1>Watch your own Chrome make live requests</h1><p>Try these 5 tiny steps on any normal website right now.</p></div>
+<div class="visual-area">
+<div class="numbered-steps">
+<div><b>1</b><span>Open any public webpage in Chrome.</span></div>
+<div><b>2</b><span>Press <kbd>F12</kbd> (or Right-click → Inspect).</span></div>
+<div><b>3</b><span>Click the <strong>Network</strong> tab.</span></div>
+<div><b>4</b><span>Press <strong>Reload (↻)</strong> to record traffic.</span></div>
+<div><b>5</b><span>Spot the <strong>Name</strong> and <strong>200</strong> Status column!</span></div>
+</div>
+<div class="status-line">Notice how loading ONE webpage silently fires dozens of HTTP requests to servers in less than 1 second!</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Troubleshooting</b>If the Network list looks empty, remind Sadmam: Network tab must be OPEN *before* hitting Reload! Only look at Name and Status today.</div></div>
+<div class="slide-bottom"><span>CLASS 01 · PRACTICAL</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>GRAND FINALE</span><b>171–176</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">CONNECT EVERYTHING TO AI</div><h1>Inside a real AI chat app (6 live steps)</h1><p>Click <strong>Next Step →</strong> or <strong>Auto-Play</strong> to trace Sadmam's prompt from screen to AI and back.</p></div>
+<div class="visual-area">
+<div class="act-bar">
+<button class="cbtn" id="aiNextBtn" onclick="stepAI()">▶ Next Step (1 / 6)</button>
+<button class="cbtn orange" id="aiAutoBtn" onclick="autoAI()">⚡ Auto-Play Full AI Flow</button>
+<button class="cbtn ghost" onclick="setAI(0)">↺ Reset</button>
+</div>
+<div class="ai-pipe" id="aiPipe">
+<div class="ai-stop active" onclick="setAI(0)"><div class="ico">💬</div><b>1. Frontend</b><small>Next.js / Chrome</small></div>
+<div class="ai-stop" onclick="setAI(1)"><div class="ico">📦</div><b>2. HTTP + JSON</b><small>POST /api/chat</small></div>
+<div class="ai-stop" onclick="setAI(2)"><div class="ico">⚙️</div><b>3. App Backend</b><small>Node / Python</small></div>
+<div class="ai-stop" onclick="setAI(3)"><div class="ico">🚪</div><b>4. AI API</b><small>OpenAI Endpoint</small></div>
+<div class="ai-stop" onclick="setAI(4)"><div class="ico">🗄️</div><b>5. Save Chat</b><small>Supabase DB</small></div>
+<div class="ai-stop" onclick="setAI(5)"><div class="ico">✨</div><b>6. 200 OK Reply</b><small>Back to Screen</small></div>
+</div>
+<div class="ai-inspector">
+<div class="ai-card">
+<div style="font:10px 'DM Mono',monospace;color:var(--teal);letter-spacing:.12em" id="aiStepTag">STEP 1 OF 6 · FRONTEND</div>
+<div style="font:700 15px 'Manrope',sans-serif;margin:6px 0" id="aiStepTitle">Sadmam clicks Send in the Chat Frontend</div>
+<div style="font-size:12.5px;color:#a8bcc6;line-height:1.5" id="aiStepDesc">The visible screen captures the prompt and shows a loading indicator while handing off the job.</div>
+</div>
+<div class="ai-card">
+<div style="font:10px 'DM Mono',monospace;color:var(--orange);letter-spacing:.12em">LIVE DATA AT THIS STOP</div>
+<pre id="aiStepCode"></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Banglish Note</b>GRAND FINALE! Step 1 → 6 click kore dekhao kivabe Next.js + Node/Python + OpenAI API + Supabase ekshathe kaj kore. Clarify: this is the clean modern AI app pattern — in Class 2 we dive deep into real API calls &amp; keys!</div></div>
+<div class="slide-bottom"><span>CLASS 01 · AI ARCHITECTURE</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>RECAP</span><b>176–178</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">RECAP</div><h1>Explain the journey in six steps</h1><p>Click each step in order as Sadmam tells the complete story in his own words.</p></div>
+<div class="visual-area">
+<div class="recap-flow" id="recapRow">
+<div class="recap-node lit" onclick="litRecap(0)">🖥️<b>1. Screen</b></div><i>→</i>
+<div class="recap-node" onclick="litRecap(1)">📱<b>2. Client</b></div><i>→</i>
+<div class="recap-node" onclick="litRecap(2)">✉️<b>3. Request</b></div><i>→</i>
+<div class="recap-node" onclick="litRecap(3)">🗄️<b>4. Server</b></div><i>→</i>
+<div class="recap-node" onclick="litRecap(4)">📩<b>5. Response</b></div><i>→</i>
+<div class="recap-node" onclick="litRecap(5)">✨<b>6. Screen</b></div>
+</div>
+<div class="status-line" id="recapOut">Click each box 1 → 6 as Sadmam explains the full round trip without looking at notes!</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Assessment</b>Let Sadmam narrate all 6 stops in plain English. Don't worry about fancy wording — if he gets the sequence right, Class 01 is a 10/10 win!</div></div>
+<div class="slide-bottom"><span>CLASS 01 · RECAP</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>EXIT TICKET</span><b>178–180</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">EXIT TICKET</div><h1>One final question before we wrap up</h1><p>Answer in one or two simple sentences using your own words.</p></div>
+<div class="visual-area">
+<div class="exit-card">
+<div class="exit-mark">?</div>
+<div>
+<span>EXIT TICKET</span>
+<strong>What is the difference between an API and a Server?</strong>
+<small>Think of our restaurant analogy: the kitchen vs the menu &amp; waiter.</small>
+</div>
+</div>
+<div class="act-bar"><button class="cbtn ghost" onclick="toggleExit()">👁 Reveal Key Idea (After Sadmam Answers)</button></div>
+<div class="status-line" id="exitAns" style="display:none"><strong>Key Idea:</strong> The <strong>Server</strong> is the remote computer/kitchen doing the actual work; the <strong>API</strong> is the agreed menu &amp; ordering doorway that lets other software request that work safely!</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Next Class Preview</b>After he answers, reveal the key idea and tease Class 02: "Next class we unlock API Keys, Headers, POST requests, and make our first REAL live AI call!"</div></div>
+<div class="slide-bottom"><span>CLASS 01 · EXIT TICKET</span><span class="snum"></span></div>
+</section>
+<section class="slide">
+<div class="slide-top"><div class="course-mark"><span class="mark-dot"></span> AI BACKEND MASTER COURSE</div><div class="slide-meta"><span>REFERENCES</span><b>TAKE-HOME</b></div></div>
+<div class="slide-content">
+<div class="title-block"><div class="eyebrow">OFFICIAL RESOURCE SHELF</div><h1>Six trusted guides &amp; live labs to keep</h1><p>Click any card to revisit official documentation or repeat today's live API lab.</p></div>
+<div class="visual-area">
+<div class="resource-grid">
+<a class="resource-card" href="https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Server-side/First_steps/Client-Server_overview" target="_blank" rel="noopener"><span>MDN · BEGINNER GUIDE</span><b>Client–server overview</b><small>Clear visual overview of how browsers talk to servers.</small><i>OPEN GUIDE ↗</i></a>
+<a class="resource-card" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Overview" target="_blank" rel="noopener"><span>MDN · WEB FOUNDATION</span><b>Overview of HTTP</b><small>How requests, methods, and status codes work.</small><i>OPEN GUIDE ↗</i></a>
+<a class="resource-card" href="https://learning.postman.com/docs/getting-started/first-steps/sending-the-first-request/" target="_blank" rel="noopener"><span>POSTMAN · OFFICIAL DOCS</span><b>Send your first request</b><small>Step-by-step official Postman beginner quick start.</small><i>OPEN GUIDE ↗</i></a>
+<a class="resource-card" href="https://developer.chrome.com/docs/devtools/network/reference" target="_blank" rel="noopener"><span>CHROME · OFFICIAL DOCS</span><b>Network panel reference</b><small>Inspect real requests inside Chrome DevTools.</small><i>OPEN GUIDE ↗</i></a>
+<a class="resource-card" href="https://platform.openai.com/docs/api-reference/chat" target="_blank" rel="noopener"><span>OPENAI · API REFERENCE</span><b>Chat Completions API</b><small>Preview the real /v1/chat/completions endpoint we use next.</small><i>OPEN DOCS ↗</i></a>
+<a class="resource-card live-resource" href="https://postman-echo.com/get" target="_blank" rel="noopener"><span>LIVE PRACTICE ENDPOINT</span><b>Postman Echo · GET</b><small>Re-open today's live public GET endpoint anytime.</small><i>OPEN LIVE ↗</i></a>
+</div>
+</div>
+</div>
+<div class="teacher-cue"><button class="cue-toggle" onclick="toggleCue(this)">＋ Teacher Cue</button><div class="cue-text"><b>Homework (5 mins)</b>Ask Sadmam to open Chrome → F12 → Network on ChatGPT or YouTube once before Class 02 and spot at least one 200 status code!</div></div>
+<div class="slide-bottom"><span>CLASS 01 · RESOURCES</span><span class="snum"></span></div>
+</section>
+</div>
+<div class="controls">
+<button class="nav-btn" onclick="toggleGrid()" title="All Slides (G)">⊞</button>
+<button id="prev" class="nav-btn" aria-label="Previous slide">←</button>
+<div class="counter" id="counter">01 / 44</div>
+<button id="next" class="nav-btn" aria-label="Next slide">→</button>
+</div>
+<div class="grid-overlay" id="gridOverlay">
+<div class="grid-head"><h2>Class 01 — All 44 Slides</h2><button class="cbtn ghost" onclick="toggleGrid()">✕ Close (Esc)</button></div>
+<div class="grid-list" id="gridList"></div>
+</div>
+<script>
+const slides = [...document.querySelectorAll('.slide')];
+const total = slides.length;
+let current = 0;
+
+// Auto-stamp accurate bottom slide numbers & build Grid
+const gridList = document.getElementById('gridList');
+slides.forEach((s, i) => {
+const numStr = String(i + 1).padStart(2, '0') + ' / ' + String(total).padStart(2, '0');
+const el = s.querySelector('.snum');
+if (el) el.textContent = numStr;
+const h1 = s.querySelector('h1')?.textContent || 'Slide ' + (i + 1);
+const eb = s.querySelector('.eyebrow')?.textContent || '';
+const item = document.createElement('div');
+item.className = 'gitem';
+item.innerHTML = `<small>${numStr} · ${eb}</small><b>${h1}</b>`;
+item.onclick = () => { showSlide(i); toggleGrid(); };
+gridList.appendChild(item);
+});
+
+function showSlide(n) {
+current = Math.max(0, Math.min(total - 1, n));
+slides.forEach((s, i) => s.classList.toggle('active', i === current));
+document.querySelectorAll('.gitem').forEach((g, i) => g.classList.toggle('cur', i === current));
+document.getElementById('counter').textContent = String(current + 1).padStart(2, '0') + ' / ' + String(total).padStart(2, '0');
+document.getElementById('prev').disabled = current === 0;
+document.getElementById('next').disabled = current === total - 1;
+document.getElementById('progressBar').style.width = ((current + 1) / total * 100) + '%';
+document.querySelectorAll('.teacher-cue').forEach(x => x.classList.remove('open'));
+}
+function toggleCue(btn) { btn.parentElement.classList.toggle('open'); }
+function toggleGrid() { document.getElementById('gridOverlay').classList.toggle('open'); }
+document.getElementById('prev').onclick = () => showSlide(current - 1);
+document.getElementById('next').onclick = () => showSlide(current + 1);
+document.addEventListener('keydown', e => {
+if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); showSlide(current + 1); }
+else if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); showSlide(current - 1); }
+else if (e.key.toLowerCase() === 't') { slides[current].querySelector('.teacher-cue')?.classList.toggle('open'); }
+else if (e.key.toLowerCase() === 'g') { toggleGrid(); }
+else if (e.key === 'Escape') { document.getElementById('gridOverlay').classList.remove('open'); }
+});
+
+/* Slide 03: Course Ladder */
+const modNotes = [
+"<strong>Module 1 (Classes 1–5 · Today):</strong> Master Frontend, Backend, Client, Server, HTTP, APIs, Databases (Supabase), and deploying your first live app.",
+"<strong>Module 2 (Classes 6–10):</strong> Learn how Python &amp; JavaScript control LLMs, Prompt Systems, Vector Databases (RAG — chat with PDFs) &amp; AI Agents.",
+"<strong>Module 3 (Classes 11–15):</strong> Demystify Machine Learning — how models learn patterns from datasets instead of hand-written rules.",
+"<strong>Module 4 (Classes 16–20):</strong> Open up Neural Networks, Neurons, Weights, Attention &amp; Transformers — the 'T' inside ChatGPT!"
+];
+function pickMod(i) {
+document.querySelectorAll('#modCards .mod-card').forEach((c, idx) => c.classList.toggle('active', idx === i));
+document.getElementById('modOut').innerHTML = modNotes[i];
+}
+
+/* Slide 04: Warm-Up Chat */
+function sendWarm() {
+const inp = document.getElementById('warmInp');
+const txt = inp.value.trim() || "How does AI backend work?";
+const box = document.getElementById('warmChat');
+const u = document.createElement('div'); u.className = 'chat-bubble you'; u.textContent = txt;
+box.appendChild(u); box.scrollTop = box.scrollHeight;
+document.getElementById('warmStat').innerHTML = '⏳ <strong>Notice that tiny pause!</strong> Your message just left your laptop and travelled to a remote computer…';
+setTimeout(() => {
+const a = document.createElement('div'); a.className = 'chat-bubble ai';
+a.textContent = "Your message travelled across the internet to a server, got processed behind the scenes, and returned right back to your screen!";
+box.appendChild(a); box.scrollTop = box.scrollHeight;
+document.getElementById('warmStat').innerHTML = '✅ <strong>Reply arrived!</strong> Today we uncover every single invisible step that happened during that 1 second.';
+}, 850);
+}
+
+/* Slide 05: Screen X-Ray */
+function toggleXray() {
+const d = document.getElementById('xrayDemo');
+const on = d.classList.toggle('xray-on');
+document.getElementById('xrayBtn').textContent = on ? '🔍 X-Ray ON — Click Highlighted Areas' : '🔍 Turn ON Screen X-Ray';
+document.getElementById('xrayStat').textContent = on ? 'Click the Message Feed, Input Box, or Send Button above!' : 'X-Ray turned off.';
+}
+function pickXray(msg) { document.getElementById('xrayStat').innerHTML = '✨ <strong>Visible Layer:</strong> ' + msg; }
+
+/* Slide 06: Hidden Side */
+function setWorld(step) {
+const btns = document.querySelectorAll('.slide:nth-child(6) .act-bar .cbtn');
+btns.forEach((b, i) => { b.classList.toggle('active', i === step); b.classList.toggle('ghost', i !== step); });
+const wl = document.getElementById('wLeft'), wr = document.getElementById('wRight'), p = document.getElementById('wParcel');
+wl.classList.toggle('lit', step === 0);
+wr.classList.toggle('lit', step === 2);
+p.className = 'parcel' + (step === 1 ? ' mid' : step === 2 ? ' end' : '');
+const mid = ['ready to send', 'message flying out →', 'delivered to kitchen'];
+const st = [
+'<strong>Step 1:</strong> Like a restaurant customer, you interact only with the front of house — you never walk behind the stove.',
+'<strong>Step 2:</strong> When you click Send, your message leaves your screen and travels silently through the corridor.',
+'<strong>Step 3:</strong> Remote computers behind the scenes receive your order, do the real work, and prepare your answer!'
+];
+document.getElementById('wMid').textContent = mid[step];
+document.getElementById('wStat').innerHTML = st[step];
+}
+
+/* Slide 09: Frontend vs Backend Check */
+function chkFB(btn, isRight) {
+const row = btn.closest('.qrow');
+row.classList.remove('ok', 'bad');
+row.classList.add(isRight ? 'ok' : 'bad');
+row.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+btn.classList.add('active');
+document.getElementById('fbStat').innerHTML = isRight
+? '✅ <strong>Spot on!</strong> Visible UI = Frontend · Hidden checks &amp; permanent saving = Backend.'
+: '🤔 <strong>Try the other side!</strong> Ask: Can the user literally see/touch this on screen, or does it happen invisibly behind the scenes?';
+}
+
+/* Slide 11: Client Device Switcher */
+const cliData = [
+['💻', 'MacBook + Google Chrome', 'Opens chatgpt.com and asks remote computers for AI answers on your behalf.', '"Client" means the asker — never a paying customer!'],
+['📱', 'iPhone + ChatGPT Mobile App', 'Captures your touch &amp; voice and sends requests over 5G/Wi-Fi to OpenAI.', 'Phone apps are Clients too — not just web browsers!'],
+['📺', 'Smart TV + Netflix App', 'Displays thumbnails and requests video streams from Netflix servers.', 'Your TV does not store 10,000 movies inside it — it acts as a Client!']
+];
+function setCli(i) {
+document.querySelectorAll('.slide:nth-child(11) .act-bar .cbtn').forEach((b, idx) => { b.classList.toggle('active', idx === i); b.classList.toggle('ghost', idx !== i); });
+['cliIco', 'cliName', 'cliDesc', 'cliNote'].forEach((id, k) => document.getElementById(id).textContent = cliData[i][k]);
+}
+
+/* Slide 12: Ping Server */
+function pingSrv() {
+const c = document.getElementById('psC'), s = document.getElementById('psS'), d1 = document.getElementById('psDot1'), d2 = document.getElementById('psDot2'), log = document.getElementById('psLog');
+c.className = 'arch-node lit'; s.className = 'arch-node server-node';
+d1.style.transition = 'none'; d1.style.left = '4%'; d1.style.opacity = '1';
+d2.style.opacity = '0';
+log.innerHTML = '⚡ <strong>Step 1/3:</strong> Signal leaving Sadmam\'s Client in Montclair, NJ across fiber-optic cables…';
+requestAnimationFrame(() => { d1.style.transition = 'left .8s ease'; d1.style.left = '90%'; });
+setTimeout(() => {
+d1.style.opacity = '0'; c.className = 'arch-node'; s.className = 'arch-node server-node lit-o';
+log.innerHTML = '🖥️ <strong>Step 2/3:</strong> Physical Server rack inside a Virginia Data Center received your click &amp; processed it!';
+}, 850);
+setTimeout(() => {
+d2.style.transition = 'none'; d2.style.left = '90%'; d2.style.opacity = '1';
+requestAnimationFrame(() => { d2.style.transition = 'left .8s ease'; d2.style.left = '4%'; });
+}, 1450);
+setTimeout(() => {
+d2.style.opacity = '0'; s.className = 'arch-node server-node'; c.className = 'arch-node lit';
+log.innerHTML = '✅ <strong>Step 3/3:</strong> Answer arrived back on your screen in <strong>24 milliseconds</strong> — faster than blinking!';
+}, 2300);
+}
+
+/* Slide 16: Interactive 4-Step Round Trip */
+let rtStep = 0, rtTimer = null;
+function applyRT(step) {
+rtStep = step;
+const c = document.getElementById('rtC'), s = document.getElementById('rtS'), d1 = document.getElementById('rtD1'), d2 = document.getElementById('rtD2'), log = document.getElementById('rtLog'), btn = document.getElementById('rtNext');
+c.className = 'arch-node'; s.className = 'arch-node server-node'; d1.style.opacity = '0'; d2.style.opacity = '0';
+if (step === 0) { log.innerHTML = 'Press <strong>▶ Next Step</strong> to walk through all 4 moments of a live round trip.'; btn.textContent = '▶ Next Step (1 / 4)'; }
+if (step === 1) {
+c.className = 'arch-node lit'; d1.style.transition = 'none'; d1.style.left = '4%'; d1.style.opacity = '1';
+requestAnimationFrame(() => { d1.style.transition = 'left .75s ease'; d1.style.left = '88%'; });
+log.innerHTML = '<strong>Step 1 / 4 — Request Leaves Client:</strong> You click Send; your browser packs a Request and fires it toward the Server.';
+btn.textContent = '▶ Next Step (2 / 4)';
+}
+if (step === 2) {
+s.className = 'arch-node server-node lit-o';
+log.innerHTML = '<strong>Step 2 / 4 — Server Does the Work:</strong> The Server receives your Request, checks rules, and prepares the answer.';
+btn.textContent = '▶ Next Step (3 / 4)';
+}
+if (step === 3) {
+s.className = 'arch-node server-node lit-o'; d2.style.transition = 'none'; d2.style.left = '88%'; d2.style.opacity = '1';
+requestAnimationFrame(() => { d2.style.transition = 'left .75s ease'; d2.style.left = '4%'; });
+log.innerHTML = '<strong>Step 3 / 4 — Response Travels Back:</strong> The Server wraps the finished result into a Response and ships it home.';
+btn.textContent = '▶ Next Step (4 / 4)';
+}
+if (step === 4) {
+c.className = 'arch-node lit';
+log.innerHTML = '✅ <strong>Step 4 / 4 — Screen Updates!</strong> Your Client opens the Response and displays the answer right in front of your eyes.';
+btn.textContent = '↺ Replay Step 1';
+}
+}
+function stepRT() { clearInterval(rtTimer); applyRT(rtStep >= 4 ? 1 : rtStep + 1); }
+function resetRT() { clearInterval(rtTimer); applyRT(0); }
+function autoRT() { clearInterval(rtTimer); let s = 1; applyRT(1); rtTimer = setInterval(() => { s++; applyRT(s); if (s >= 4) clearInterval(rtTimer); }, 1350); }
+
+/* Slide 18: HTTP / HTTPS */
+function setHttp(sec) {
+document.getElementById('httpBtn0').className = 'cbtn ' + (!sec ? 'active' : 'ghost');
+document.getElementById('httpBtn1').className = 'cbtn ' + (sec ? 'active' : 'ghost');
+document.getElementById('httpTitle').textContent = sec ? 'HTTPS' : 'HTTP';
+document.getElementById('httpStat').innerHTML = sec
+? '🔒 <strong>HTTPS (the "S" = Secure):</strong> Same HTTP language, wrapped inside an encrypted lock so nobody on public Wi-Fi can spy on your messages.'
+: '📬 <strong>HTTP (Unencrypted):</strong> Like writing on an open postcard — anyone sitting between your laptop and the server could read it. Always look for HTTPS!';
+}
+
+/* Slide 19: URL Segments */
+const urlTxt = [
+'<strong>1. https:// (Protocol):</strong> Tells your browser to use encrypted HTTPS rules.',
+'<strong>2. api.openai.com (Domain):</strong> The exact company building on the internet (OpenAI\'s API servers).',
+'<strong>3. /v1/chat/completions (Path):</strong> The exact room/department inside OpenAI that handles text chat!'
+];
+function pickUrl(i) {
+[0, 1, 2].forEach(k => {
+document.getElementById('us' + k).classList.toggle('active', k === i);
+document.getElementById('uc' + k).classList.toggle('active', k === i);
+});
+document.getElementById('urlStat').innerHTML = urlTxt[i];
+}
+
+/* Slide 20: Method */
+function pickMet(i) {
+document.getElementById('mt0').classList.toggle('active', i === 0);
+document.getElementById('mt1').classList.toggle('active', i === 1);
+document.getElementById('metStat').innerHTML = i === 0
+? '<strong>GET</strong> = Read / View existing information (opening a webpage, loading old chats).'
+: '<strong>POST</strong> = Send new information for the server to process (sending a prompt to ChatGPT, placing an order).';
+}
+
+/* Slide 21: Break Countdown */
+let brkSec = 600, brkT = null;
+function drawBrk() {
+const m = String(Math.floor(brkSec / 60)).padStart(2, '0'), s = String(brkSec % 60).padStart(2, '0');
+document.getElementById('brkClock').textContent = m + ':' + s;
+}
+function toggleBreak() {
+if (brkT) { clearInterval(brkT); brkT = null; document.getElementById('brkBtn').textContent = '▶ Resume Timer'; return; }
+document.getElementById('brkBtn').textContent = '⏸ Pause Timer';
+brkT = setInterval(() => { if (brkSec > 0) { brkSec--; drawBrk(); } else { clearInterval(brkT); brkT = null; } }, 1000);
+}
+function resetBreak() { clearInterval(brkT); brkT = null; brkSec = 600; drawBrk(); document.getElementById('brkBtn').textContent = '▶ Start 10-Min Timer'; }
+
+/* Slides 22 & 23: GET & POST demos */
+function runGetDemo() {
+const el = document.getElementById('getOut');
+el.innerHTML = '⏳ Fetching saved chats…';
+setTimeout(() => { el.innerHTML = '<strong>200 OK · RETURNED:</strong><br>1. "AI Backend Class 1"<br>2. "Montclair Essay Notes"'; }, 450);
+}
+function runPostDemo() {
+const el = document.getElementById('postOut');
+el.innerHTML = '⏳ Server processing prompt…';
+setTimeout(() => { el.innerHTML = '<strong>200 OK · CREATED:</strong><br>"An API is the waiter &amp; menu connecting two apps!"'; }, 500);
+}
+
+/* Slide 24: Status Codes */
+const stData = [
+'<strong>200 OK:</strong> Green light! Everything worked and the server returned your answer.',
+'<strong>401 Unauthorized:</strong> Security guard stopped you — missing or invalid login / API key!',
+'<strong>404 Not Found:</strong> The server is online, but nothing exists at that URL path (usually a typo!).',
+'<strong>500 Internal Server Error:</strong> Not your fault — something crashed inside the server kitchen!'
+];
+function pickSt(i) {
+[0, 1, 2, 3].forEach(k => document.getElementById('st' + k).classList.toggle('active', k === i));
+const log = document.getElementById('stLog');
+log.className = 'status-line' + (i === 2 ? ' orange' : i === 3 ? ' rose' : '');
+log.innerHTML = stData[i];
+}
+
+/* Slide 28: JSON Examples */
+const jsonEx = [
+{ h: 'REAL OPENAI CHAT PAYLOAD', c: `{\n <i>"model"</i>: <em>"gpt-4o"</em>,\n <i>"user"</i>: <em>"Sadmam"</em>,\n <i>"prompt"</i>: <em>"Explain APIs simply"</em>,\n <i>"max_tokens"</i>: <strong>120</strong>\n}` },
+{ h: 'REAL E-COMMERCE ORDER', c: `{\n <i>"customer"</i>: <em>"Amina"</em>,\n <i>"item"</i>: <em>"MacBook Stand"</em>,\n <i>"quantity"</i>: <strong>2</strong>,\n <i>"paid"</i>: <strong>true</strong>\n}` },
+{ h: 'REAL WEATHER API REPLY', c: `{\n <i>"city"</i>: <em>"Montclair, NJ"</em>,\n <i>"temp_f"</i>: <strong>68</strong>,\n <i>"condition"</i>: <em>"Clear Sky"</em>\n}` }
+];
+function pickJson(i) {
+[0, 1, 2].forEach(k => { document.getElementById('jb' + k).className = 'cbtn ' + (k === i ? 'active' : 'ghost'); });
+document.getElementById('jHead').textContent = jsonEx[i].h;
+document.getElementById('jCode').innerHTML = jsonEx[i].c;
+}
+pickJson(0);
+
+/* Slide 29: Real-World APIs */
+const apiEx = [
+['🤖', 'Your AI Study App', '1. Generate Chat Reply', '2. Create AI Image', '3. Transcribe Voice', '⚡', 'OpenAI Servers', '<strong>Why startups love APIs:</strong> You don\'t spend $100M training ChatGPT — you simply order intelligence from OpenAI\'s API!'],
+['🚗', 'Uber Mobile App', '1. Draw City Map', '2. Find Fastest Route', '3. Calculate Live ETA', '🗺️', 'Google Maps Servers', '<strong>Real Example:</strong> Uber didn\'t launch map satellites — Uber calls the Google Maps API every second!'],
+['🛒', 'Your Online Store', '1. Verify Credit Card', '2. Charge $20 / month', '3. Issue PDF Receipt', '💳', 'Stripe Servers', '<strong>Real Example:</strong> Small apps never build banking security from scratch — they call the Stripe Payments API!']
+];
+function pickApi(i) {
+[0, 1, 2].forEach(k => { document.getElementById('ab' + k).className = 'cbtn ' + (k === i ? 'active' : 'ghost'); });
+const a = apiEx[i];
+['apIco1', 'apApp', 'apM1', 'apM2', 'apM3', 'apIco2', 'apSrv'].forEach((id, k) => document.getElementById(id).textContent = a[k]);
+document.getElementById('apStat').innerHTML = a[7];
+}
+
+/* Slide 30: Endpoints */
+const epEx = [
+['💬', '/v1/chat/completions', 'Text &amp; Reasoning door — send a prompt JSON here to receive a ChatGPT-style answer.'],
+['🎨', '/v1/images/generations', 'Art Studio door — send a description here to receive a brand-new AI-generated image.'],
+['🎙️', '/v1/audio/transcriptions', 'Speech Clinic door — send a voice recording here to turn speech into clean text.'],
+['📋', '/v1/models', 'Directory door (GET) — lists all AI models currently available inside OpenAI\'s building.']
+];
+function pickEp(i) {
+[0, 1, 2, 3].forEach(k => document.getElementById('ep' + k).classList.toggle('active', k === i));
+document.getElementById('epIco').textContent = epEx[i][0];
+document.getElementById('epPath').textContent = epEx[i][1];
+document.getElementById('epDesc').innerHTML = epEx[i][2];
+}
+
+/* Slide 31: Anatomy Stepper */
+let anaIdx = 0;
+const anaLogs = [
+'<strong>Step 1 — Method:</strong> We stamp <code>GET</code> on the envelope because we want to read information.',
+'<strong>Step 2 — Endpoint:</strong> We address the envelope to the exact door <code>/products</code>.',
+'<strong>Step 3 — Server:</strong> The remote server receives the request and pulls the product list.',
+'✅ <strong>Step 4 — Response:</strong> The server sends back <code>200 OK</code> plus the clean JSON body!'
+];
+function stepAna() {
+anaIdx = (anaIdx + 1) % 4;
+[0, 1, 2, 3].forEach(k => document.getElementById('an' + k).classList.toggle('lit', k <= anaIdx));
+document.getElementById('anLog').innerHTML = anaLogs[anaIdx];
+}
+function resetAna() { anaIdx = 0; [0, 1, 2, 3].forEach(k => document.getElementById('an' + k).classList.toggle('lit', k === 0)); document.getElementById('anLog').innerHTML = anaLogs[0]; }
+
+/* Slide 33: Live Echo Preview */
+function liveEcho() {
+const out = document.getElementById('echoOut');
+out.style.display = 'block';
+out.textContent = '⏳ Sending live GET https://postman-echo.com/get ...';
+setTimeout(() => {
+out.textContent = JSON.stringify({
+args: {},
+headers: { host: "postman-echo.com", accept: "application/json" },
+url: "https://postman-echo.com/get"
+}, null, 2);
+}, 450);
+}
+
+/* Slide 36: Interactive Mini Postman */
+function syncPmUrl() {
+const m = document.getElementById('pmMet').value;
+if (m === 'POST' && document.getElementById('pmUrl').value.includes('/get')) document.getElementById('pmUrl').value = 'https://api.openai.com/v1/chat/completions';
+}
+function setPmPreset(m, u) {
+document.getElementById('pmMet').value = m;
+document.getElementById('pmUrl').value = u;
+sendPm();
+}
+function sendPm() {
+const m = document.getElementById('pmMet').value;
+const u = document.getElementById('pmUrl').value.trim();
+const st = document.getElementById('pmStatus'), bd = document.getElementById('pmBody');
+st.style.color = '#146ab1'; st.textContent = `⏳ Sending ${m} ${u} ...`;
+setTimeout(() => {
+if (u.includes('wrong')) {
+st.style.color = '#c96d2b'; st.textContent = '404 Not Found · 42 ms · 98 B';
+bd.textContent = '{\n "error": "Not Found",\n "message": "No endpoint exists at /wrong-door"\n}';
+} else if (m === 'POST' || u.includes('openai')) {
+st.style.color = '#15936c'; st.textContent = '200 OK · 580 ms · 214 B';
+bd.textContent = '{\n "model": "gpt-4o",\n "reply": "An API is a clean menu allowing your backend to borrow AI superpowers!"\n}';
+} else {
+st.style.color = '#15936c'; st.textContent = '200 OK · 138 ms · 162 B';
+bd.textContent = `{\n "args": {},\n "url": "${u}"\n}`;
+}
+}, 420);
+}
+
+/* Slide 38: Message Decoder */
+function decMsg(t) { document.getElementById('decOut').innerHTML = '✅ <strong>Decoded:</strong> ' + t; }
+
+/* Slide 39: Interactive DevTools */
+const dtData = [
+{ t: 'INSPECTING: POST /api/chat (200 OK)', p: 'Request URL: https://myapp.com/api/chat\nMethod: POST\nStatus: 200 OK (620 ms)\n\nPayload (Sent JSON):\n { "prompt": "Explain APIs simply" }\n\nResponse (Received JSON):\n { "reply": "An API is the waiter connecting two apps!" }' },
+{ t: 'INSPECTING: GET /api/chats (200 OK)', p: 'Request URL: https://myapp.com/api/chats\nMethod: GET\nStatus: 200 OK (48 ms)\n\nResponse (Received JSON):\n [ "AI Backend Class 1", "Montclair Study Plan" ]' },
+{ t: 'INSPECTING: GET style.css (200 OK)', p: 'Request URL: https://myapp.com/style.css\nMethod: GET\nStatus: 200 OK (14 ms)\n\nResponse:\n Colors, fonts, and dark-mode layout rules for the Frontend.' },
+{ t: 'INSPECTING: GET /old-page (404 Not Found)', p: 'Request URL: https://myapp.com/old-page\nMethod: GET\nStatus: 404 Not Found (31 ms)\n\nResponse:\n { "error": "Page does not exist at this URL." }' }
+];
+function pickDt(i) {
+[0, 1, 2, 3].forEach(k => document.getElementById('dr' + k).classList.toggle('active', k === i));
+document.getElementById('dtTitle').textContent = dtData[i].t;
+document.getElementById('dtPre').textContent = dtData[i].p;
+}
+pickDt(0);
+
+/* Slide 41: Grand Finale 6-Step AI Flow */
+const aiSteps = [
+{ tag: 'STEP 1 OF 6 · FRONTEND (NEXT.JS / CHROME)', title: 'Sadmam clicks Send on the visible screen', desc: 'The Frontend captures the typed question and shows a loading animation while passing the job behind the scenes.', code: '// Visible Frontend (Browser)\nuserTyped = "Explain AI in 1 sentence";\nonSendClick();' },
+{ tag: 'STEP 2 OF 6 · HTTP POST + JSON', title: 'Encrypted Request leaves the browser', desc: 'Your browser packs the prompt into a neat JSON box and sends an HTTPS POST request to your App Backend.', code: 'POST https://api.myapp.com/api/chat\nBody (JSON):\n{ "prompt": "Explain AI in 1 sentence" }' },
+{ tag: 'STEP 3 OF 6 · APP BACKEND (NODE / PYTHON)', title: 'Your private Kitchen checks rules &amp; adds secret key', desc: 'Your Backend verifies Sadmam is logged in, attaches hidden app instructions, and safely loads your private OpenAI API Key.', code: '// Hidden Backend Server\nverifyUser("sadmam@msu.edu"); // ✅ OK\nsecretKey = process.env.OPENAI_API_KEY;' },
+{ tag: 'STEP 4 OF 6 · EXTERNAL AI API ENDPOINT', title: 'Backend calls OpenAI\'s /v1/chat/completions door', desc: 'Your Backend acts as a Client to OpenAI! OpenAI\'s servers process the prompt and return a generated JSON answer.', code: 'POST https://api.openai.com/v1/chat/completions\n→ 200 OK\n{ "reply": "AI is software that learns patterns from data." }' },
+{ tag: 'STEP 5 OF 6 · PERMANENT STORAGE (SUPABASE DB)', title: 'Backend saves the chat for next time', desc: 'Before replying, your Backend stores both the question and AI reply into the Database so closing Chrome never erases it.', code: '// Database (Supabase / PostgreSQL)\nINSERT INTO chat_messages\nVALUES ("sadmam", "Explain AI...", "AI is software...");' },
+{ tag: 'STEP 6 OF 6 · HTTP 200 OK BACK TO SCREEN', title: 'Clean answer appears on Sadmam\'s screen!', desc: 'Your Backend sends HTTP 200 OK + JSON back to the Frontend, which draws the AI bubble smoothly. Total time: ~1.2 seconds!', code: 'HTTP/2 200 OK\n{ "reply": "AI is software that learns patterns from data." }\n// ✨ Rendered live on Sadmam\'s screen!' }
+];
+let aiCur = 0, aiTimer = null;
+function setAI(i) {
+aiCur = i;
+document.querySelectorAll('#aiPipe .ai-stop').forEach((el, k) => {
+el.classList.toggle('active', k === i);
+el.classList.toggle('done', k < i);
+});
+const d = aiSteps[i];
+document.getElementById('aiStepTag').textContent = d.tag;
+document.getElementById('aiStepTitle').innerHTML = d.title;
+document.getElementById('aiStepDesc').textContent = d.desc;
+document.getElementById('aiStepCode').textContent = d.code;
+document.getElementById('aiNextBtn').textContent = i < 5 ? `▶ Next Step (${i + 2} / 6)` : '↺ Replay From Step 1';
+}
+function stepAI() { clearInterval(aiTimer); aiTimer = null; document.getElementById('aiAutoBtn').textContent = '⚡ Auto-Play Full AI Flow'; setAI((aiCur + 1) % 6); }
+function autoAI() {
+if (aiTimer) { clearInterval(aiTimer); aiTimer = null; document.getElementById('aiAutoBtn').textContent = '⚡ Auto-Play Full AI Flow'; return; }
+document.getElementById('aiAutoBtn').textContent = '⏸ Stop Auto-Play';
+setAI(0);
+aiTimer = setInterval(() => {
+if (aiCur < 5) setAI(aiCur + 1);
+else { clearInterval(aiTimer); aiTimer = null; document.getElementById('aiAutoBtn').textContent = '⚡ Auto-Play Full AI Flow'; }
+}, 1900);
+}
+setAI(0);
+
+/* Slide 42: Recap */
+const recapTxt = [
+'1. Screen (Frontend): You type a message and press Send on the visible interface.',
+'2. Client (Browser / App): Your app acts as the Client starting the conversation.',
+'3. Request (HTTP + Method + URL): A labeled Request travels over the internet.',
+'4. Server (Backend): Remote computers receive the Request and do the real work.',
+'5. Response (200 OK + JSON Body): The Server sends back a Status Code and payload.',
+'6. Screen Updated! Your Client displays the finished result right in front of you!'
+];
+function litRecap(i) {
+document.querySelectorAll('#recapRow .recap-node').forEach((n, k) => n.classList.toggle('lit', k <= i));
+document.getElementById('recapOut').innerHTML = '<strong>' + recapTxt[i] + '</strong>';
+}
+
+/* Slide 43: Exit Answer Toggle */
+function toggleExit() {
+const el = document.getElementById('exitAns');
+el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+showSlide(0);
+</script>
+</body>
+</html>
