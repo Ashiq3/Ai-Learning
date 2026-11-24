@@ -4,7 +4,7 @@ Incremental, production-focused improvements for **AI Backend Master Course** (`
 **Rule:** Complete 1 focused task per scheduled run to keep changes clean, atomic, and meaningful.
 
 ## Documentation & Curriculum Polish
-- [ ] Add MIT `LICENSE` file to the repository
+- [x] Add MIT `LICENSE` file to the repository (2026-11-24)
 - [ ] Add `CONTRIBUTING.md` with guidelines for contributing lessons, fixes, or visual slides
 - [ ] Add `CHANGELOG.md` to track curriculum and UI updates
 - [ ] Add `docs/curriculum-roadmap.md` outlining the 20-class AI backend learning path
