@@ -18,12 +18,12 @@ export function IllustratedFrame({
 
   return (
     <figure
-      className={`overflow-hidden rounded-xl border border-white/15 bg-[#111d29] shadow-[0_16px_45px_rgba(0,0,0,0.4)] ${className}`}
+      className={`overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_2px_10px_rgba(15,23,42,0.05)] ${className}`}
     >
       {failed ? (
-        <div className="flex aspect-video w-full flex-col items-center justify-center gap-2 bg-[#142333] p-6 text-center">
-          <Layers className="h-8 w-8 text-[#60e0c0]" aria-hidden="true" />
-          <p className="text-sm font-medium text-[#edf4f5]">{alt}</p>
+        <div className="flex aspect-video w-full flex-col items-center justify-center gap-2 bg-slate-50 p-6 text-center">
+          <Layers className="h-8 w-8 text-slate-400" aria-hidden="true" />
+          <p className="text-sm font-medium text-slate-700">{alt}</p>
         </div>
       ) : (
         <img
@@ -35,7 +35,7 @@ export function IllustratedFrame({
         />
       )}
       {caption && (
-        <figcaption className="border-t border-white/10 bg-[#0d1723] px-4 py-2 font-mono text-[11px] text-[#9aabba]">
+        <figcaption className="border-t border-slate-100 bg-slate-50/70 px-4 py-2.5 text-xs text-slate-500">
           {caption}
         </figcaption>
       )}

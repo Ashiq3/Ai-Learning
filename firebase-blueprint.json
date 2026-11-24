@@ -1,0 +1,191 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Authenticated user profile with strict role separation between instructor and students.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Firebase Auth UID matching the document ID."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "minLength": 3,
+          "maxLength": 200,
+          "description": "Verified Google account email address."
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "description": "Display name shown on exam submissions and dashboards."
+        },
+        "photoURL": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Optional avatar URL from Google Sign-In."
+        },
+        "role": {
+          "type": "string",
+          "enum": ["student", "instructor"],
+          "description": "Access role. Non-bootstrapped users are strictly locked to student."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the profile was first created (immutable)."
+        },
+        "lastLoginAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of the user's most recent sign-in."
+        }
+      },
+      "required": ["uid", "email", "displayName", "photoURL", "role", "createdAt", "lastLoginAt"]
+    },
+    "ExamAttempt": {
+      "title": "ExamAttempt",
+      "description": "Immutable snapshot of a student's official end-of-class exam attempt with instructor review fields.",
+      "type": "object",
+      "properties": {
+        "attemptId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Unique document ID for this attempt."
+        },
+        "studentUid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Firebase Auth UID of the student who submitted this attempt."
+        },
+        "studentName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "description": "Student display name at submission time."
+        },
+        "studentEmail": {
+          "type": "string",
+          "format": "email",
+          "minLength": 3,
+          "maxLength": 200,
+          "description": "Verified student email at submission time."
+        },
+        "classId": {
+          "type": "integer",
+          "description": "Class number (1, 2, or 3)."
+        },
+        "classTitle": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 180,
+          "description": "Snapshot title of the class at submission time."
+        },
+        "examVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "description": "Exam schema/content version tag."
+        },
+        "attemptNumber": {
+          "type": "integer",
+          "description": "Sequential attempt counter for this student and class (1..500)."
+        },
+        "autoGradedCorrect": {
+          "type": "integer",
+          "description": "Count of correctly answered MCQ and Multi-Select questions."
+        },
+        "autoGradedTotal": {
+          "type": "integer",
+          "description": "Total number of auto-graded MCQ and Multi-Select questions."
+        },
+        "scorePercent": {
+          "type": "integer",
+          "description": "Auto-graded percentage score (0..100)."
+        },
+        "passed": {
+          "type": "boolean",
+          "description": "True when scorePercent >= 80."
+        },
+        "answersUnlocked": {
+          "type": "boolean",
+          "description": "Option A smart reveal flag: true when attemptNumber >= 3 or scorePercent >= 80."
+        },
+        "answers": {
+          "type": "array",
+          "description": "Bounded list (1..20) of question-level answer snapshots so future slide updates never break historical results."
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of exam submission (immutable)."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of last instructor review update."
+        },
+        "reviewStatus": {
+          "type": "string",
+          "enum": ["pending", "reviewed"],
+          "description": "Short-answer review state. Always pending on create; instructor marks reviewed."
+        },
+        "teacherFeedback": {
+          "type": "string",
+          "maxLength": 2000,
+          "description": "Instructor written feedback on the attempt and short-answer response."
+        },
+        "shortAnswerScore": {
+          "type": "integer",
+          "description": "Instructor score on the short written question (0..2)."
+        },
+        "reviewedBy": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Verified instructor email who reviewed this attempt."
+        }
+      },
+      "required": [
+        "attemptId",
+        "studentUid",
+        "studentName",
+        "studentEmail",
+        "classId",
+        "classTitle",
+        "examVersion",
+        "attemptNumber",
+        "autoGradedCorrect",
+        "autoGradedTotal",
+        "scorePercent",
+        "passed",
+        "answersUnlocked",
+        "answers",
+        "submittedAt",
+        "updatedAt",
+        "reviewStatus",
+        "teacherFeedback",
+        "shortAnswerScore",
+        "reviewedBy"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Stores verified Google user profiles with strict PII isolation (owner or instructor read-only) and non-escalatable role."
+    },
+    "/examAttempts/{attemptId}": {
+      "schema": { "$ref": "#/entities/ExamAttempt" },
+      "description": "Stores permanent student exam attempt snapshots across all classes. Students create and read only their own attempts; instructor reads all attempts and updates review feedback fields only."
+    }
+  }
+}

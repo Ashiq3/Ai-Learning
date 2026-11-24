@@ -4,10 +4,14 @@ import { COURSE_DECKS, READY_CLASS_IDS } from '../data/allClasses.ts';
 import { CURRICULUM_CLASSES } from '../data/roadmapData.ts';
 import {
   clampSlideIndex,
+  computeClassProgress,
   computeContextWindowUsage,
   computeServerLoad,
   getClassPacingSummary,
   getCurriculumTotals,
+  getSlideLessonKind,
+  groupSlidesByPart,
+  simulateBackendJobTest,
   simulatePostmanCall,
   tokenizeText,
   validateJsonPayload,
@@ -120,3 +124,40 @@ test('tokenizeText, computeServerLoad, and clampSlideIndex behave deterministica
   assert.equal(clampSlideIndex(-4, 36), 0);
   assert.equal(clampSlideIndex(99, 36), 35);
 });
+
+test('simulateBackendJobTest tests all 4 Backend Jobs (Bouncer, Referee, Vault, Engine) accurately', () => {
+  assert.equal(simulateBackendJobTest({ job: 'bouncer', bouncerRole: 'stranger' }).allowed, false);
+  assert.equal(simulateBackendJobTest({ job: 'bouncer', bouncerRole: 'pro' }).allowed, true);
+  assert.equal(
+    simulateBackendJobTest({ job: 'referee', tamperedPriceBdt: 1, officialPriceBdt: 380 }).allowed,
+    false
+  );
+  assert.equal(
+    simulateBackendJobTest({ job: 'referee', tamperedPriceBdt: 380, officialPriceBdt: 380 }).allowed,
+    true
+  );
+  assert.equal(simulateBackendJobTest({ job: 'vault', vaultLocation: 'frontend' }).allowed, false);
+  assert.equal(simulateBackendJobTest({ job: 'vault', vaultLocation: 'backend' }).allowed, true);
+  assert.equal(simulateBackendJobTest({ job: 'engine', engineTask: 'pdf' }).allowed, true);
+});
+
+test('groupSlidesByPart, getSlideLessonKind, and computeClassProgress accurately model LMS outlines', () => {
+  for (const cid of READY_CLASS_IDS) {
+    const slides = COURSE_DECKS[cid].slides;
+    const chapters = groupSlidesByPart(slides);
+    assert.ok(chapters.length >= 4, `Class ${cid} should have multiple chapters`);
+    const totalGrouped = chapters.reduce((acc, ch) => acc + ch.slides.length, 0);
+    assert.equal(totalGrouped, slides.length);
+    const totalMins = chapters.reduce((acc, ch) => acc + ch.totalMinutes, 0);
+    assert.equal(totalMins, 180);
+  }
+
+  // Class 01 Slide 15 is our interactive backend-jobs-lab
+  assert.equal(getSlideLessonKind(COURSE_DECKS[1].slides[14]), 'lab');
+  // Deduplicates invalid and duplicate slide IDs
+  const prog = computeClassProgress([1, 2, 2, 15, 999, 0], 36);
+  assert.equal(prog.visitedCount, 3);
+  assert.equal(prog.percent, 8);
+});
+
+

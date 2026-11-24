@@ -1,17 +1,37 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   ArrowLeft,
   ArrowRight,
+  BookOpen,
+  CheckCircle2,
+  ChevronDown,
+  ClipboardCheck,
+  Coffee,
   ExternalLink,
+  FlaskConical,
+  HelpCircle,
   LayoutGrid,
+  LogOut,
+  Monitor,
+  PanelLeft,
+  PanelLeftClose,
   Plus,
+  ShieldCheck,
   X,
 } from 'lucide-react';
 import { COURSE_DECKS, READY_CLASS_IDS } from '../data/allClasses';
 import type { AppView, ClassDeck, ClassId, SlideData } from '../types/course';
-import type { ClassPacingSummary, SlidePacingItem } from '../utils/courseLogic';
-import { InlineCodeText } from './InlineCodeText';
 import {
+  computeClassProgress,
+  groupSlidesByPart,
+  type ClassPacingSummary,
+  type SlideLessonKind,
+  type SlidePacingItem,
+} from '../utils/courseLogic';
+import { InlineCodeText } from './InlineCodeText';
+import { ThemeToggle } from './ThemeToggle';
+import {
+  BackendJobsLab,
   DatabaseMemoryLab,
   FrontendXrayLab,
   JsonDoctorLab,
@@ -38,11 +58,15 @@ import {
 interface SlideWorkspaceProps {
   deck: ClassDeck;
   currentIndex: number;
+  visitedSlideIds: number[];
   pacing: ClassPacingSummary;
   pacingItem: SlidePacingItem;
   showTeacherCue: boolean;
   showGrid: boolean;
+  isInstructor: boolean;
+  pendingReviewCount?: number;
   onSelectClass: (classId: ClassId) => void;
+  onOpenExam: (classId: ClassId) => void;
   onToggleTeacherCue: () => void;
   onCloseTeacherCue: () => void;
   onToggleGrid: () => void;
@@ -51,6 +75,7 @@ interface SlideWorkspaceProps {
   onPrev: () => void;
   onNext: () => void;
   onSelectView: (view: AppView) => void;
+  onSignOut: () => void;
 }
 
 function renderStage(
@@ -78,6 +103,8 @@ function renderStage(
       return <BreakTimerStage />;
     case 'frontend-xray':
       return <FrontendXrayLab />;
+    case 'backend-jobs-lab':
+      return <BackendJobsLab />;
     case 'server-stress':
       return <ServerStressLab />;
     case 'postman-lab':
@@ -99,14 +126,45 @@ function renderStage(
   }
 }
 
+function LessonKindIcon({ kind, active }: { kind: SlideLessonKind; active: boolean }) {
+  const cls = `h-3.5 w-3.5 shrink-0 ${
+    active
+      ? 'text-[#1D4ED8]'
+      : kind === 'lab'
+        ? 'text-indigo-600'
+        : kind === 'quiz'
+          ? 'text-emerald-600'
+          : kind === 'break'
+            ? 'text-amber-600'
+            : 'text-slate-400'
+  }`;
+
+  switch (kind) {
+    case 'lab':
+      return <FlaskConical className={cls} aria-hidden="true" />;
+    case 'tool':
+      return <Monitor className={cls} aria-hidden="true" />;
+    case 'quiz':
+      return <HelpCircle className={cls} aria-hidden="true" />;
+    case 'break':
+      return <Coffee className={cls} aria-hidden="true" />;
+    default:
+      return <BookOpen className={cls} aria-hidden="true" />;
+  }
+}
+
 export function SlideWorkspace({
   deck,
   currentIndex,
+  visitedSlideIds,
   pacing,
   pacingItem,
   showTeacherCue,
   showGrid,
+  isInstructor,
+  pendingReviewCount = 0,
   onSelectClass,
+  onOpenExam,
   onToggleTeacherCue,
   onCloseTeacherCue,
   onToggleGrid,
@@ -115,8 +173,12 @@ export function SlideWorkspace({
   onPrev,
   onNext,
   onSelectView,
+  onSignOut,
 }: SlideWorkspaceProps) {
   const [cueTab, setCueTab] = useState<'script' | 'bangla'>('script');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [collapsedParts, setCollapsedParts] = useState<Record<string, boolean>>({});
 
   const slides = deck.slides;
   const slide = slides[currentIndex];
@@ -125,35 +187,26 @@ export function SlideWorkspace({
   const paddedCurrent = String(currentIndex + 1).padStart(2, '0');
   const paddedTotal = String(totalSlides).padStart(2, '0');
 
-  return (
-    <div className="deck-surface relative flex min-h-[100dvh] w-full flex-col justify-between overflow-x-clip text-[#edf4f5]">
-      {/* Fixed 3px Top Gradient Progress Bar */}
-      <div
-        aria-hidden="true"
-        className="fixed inset-x-0 top-0 z-40 h-[3px] bg-white/8"
-      >
-        <div
-          className="h-full bg-gradient-to-r from-[#60e0c0] to-[#80b6ff] transition-all duration-300"
-          style={{ width: `${progressPct}%` }}
-        />
-      </div>
+  const chapters = useMemo(() => groupSlidesByPart(slides), [slides]);
+  const visitedSet = useMemo(() => new Set(visitedSlideIds), [visitedSlideIds]);
+  const classProgress = useMemo(
+    () => computeClassProgress(visitedSlideIds, totalSlides),
+    [visitedSlideIds, totalSlides]
+  );
 
-      {/* Minimalist Top Keynote Chrome + Clean Class 01/02/03 Switcher */}
-      <header className="relative z-20 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 pt-5 pb-2 sm:px-9">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 min-w-0">
-          <button
-            type="button"
-            onClick={() => onSelectSlide(0)}
-            className="font-mono text-[11px] font-semibold tracking-[0.14em] text-[#b4c8d3] hover:text-[#60e0c0] transition-colors whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60e0c0] rounded"
-          >
-            AI BACKEND COURSE
-          </button>
+  const togglePart = (partTitle: string) => {
+    setCollapsedParts((prev) => ({ ...prev, [partTitle]: !prev[partTitle] }));
+  };
 
-          {/* Clean Class 01 / 02 / 03 Selector */}
+  const outlineContent = (
+    <div className="flex h-full flex-col bg-white">
+      {/* Sidebar Header: Class Switcher + Progress */}
+      <div className="border-b border-slate-200 p-4 space-y-3.5">
+        <div className="flex items-center justify-between gap-2">
           <div
             role="group"
-            aria-label="Select 3-hour class"
-            className="flex items-center gap-1 rounded-lg border border-white/12 bg-[#111e2b] p-0.5"
+            aria-label="Switch course class"
+            className="inline-flex flex-1 items-center gap-0.5 rounded-lg bg-slate-100 p-0.5"
           >
             {READY_CLASS_IDS.map((cid) => {
               const active = cid === deck.classId;
@@ -162,10 +215,10 @@ export function SlideWorkspace({
                   key={cid}
                   type="button"
                   onClick={() => onSelectClass(cid)}
-                  className={`rounded-md px-2.5 py-1 font-mono text-[11px] font-semibold transition-colors whitespace-nowrap ${
+                  className={`flex-1 rounded-md px-2 py-1 text-xs transition-all whitespace-nowrap ${
                     active
-                      ? 'bg-[#60e0c0] text-[#08171c]'
-                      : 'text-[#8ea5b4] hover:text-[#edf4f5]'
+                      ? 'bg-white font-semibold text-slate-900 shadow-2xs ring-1 ring-slate-200/80'
+                      : 'font-medium text-slate-600 hover:text-slate-900'
                   }`}
                 >
                   Class 0{cid}
@@ -173,344 +226,605 @@ export function SlideWorkspace({
               );
             })}
           </div>
-
-          <nav
-            aria-label="Course views"
-            className="flex items-center gap-3.5 text-xs"
+          <button
+            type="button"
+            onClick={() => setMobileDrawerOpen(false)}
+            aria-label="Close course outline"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-900 xl:hidden"
           >
+            <X className="h-4 w-4" aria-hidden="true" />
+          </button>
+        </div>
+
+        <div>
+          <p className="font-display text-[13.5px] font-bold leading-snug text-slate-900">
+            {deck.title}
+          </p>
+          <div className="mt-2.5 space-y-1">
+            <div className="flex items-center justify-between text-[11.5px] tabular-nums">
+              <span className="font-medium text-slate-500">
+                {classProgress.visitedCount} of {totalSlides} lessons viewed
+              </span>
+              <span className="font-mono font-semibold text-[#1D4ED8]">
+                {classProgress.percent}%
+              </span>
+            </div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+              <div
+                className="h-full rounded-full bg-[#1D4ED8] transition-all duration-300"
+                style={{ width: `${classProgress.percent}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Scrollable Chapter-Grouped Lesson List */}
+      <nav
+        aria-label="Course lessons outline"
+        className="flex-1 overflow-y-auto px-2.5 py-3 space-y-2"
+      >
+        {chapters.map((chapter) => {
+          const isCollapsed = collapsedParts[chapter.partTitle] ?? false;
+          const chapterHasCurrent = chapter.slides.some((s) => s.index === currentIndex);
+
+          return (
+            <div key={chapter.partTitle} className="space-y-0.5">
+              <button
+                type="button"
+                onClick={() => togglePart(chapter.partTitle)}
+                aria-expanded={!isCollapsed}
+                className="flex w-full items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-left hover:bg-slate-50 transition-colors"
+              >
+                <span
+                  className={`truncate text-[11.5px] font-semibold ${
+                    chapterHasCurrent ? 'text-[#1D4ED8]' : 'text-slate-500'
+                  }`}
+                >
+                  {chapter.partTitle}
+                </span>
+                <ChevronDown
+                  className={`h-3.5 w-3.5 shrink-0 text-slate-400 transition-transform ${
+                    isCollapsed ? '-rotate-90' : ''
+                  }`}
+                  aria-hidden="true"
+                />
+              </button>
+
+              {!isCollapsed && (
+                <ul className="space-y-0.5">
+                  {chapter.slides.map(({ slide: s, index: idx, kind }) => {
+                    const isActive = idx === currentIndex;
+                    const isDone = visitedSet.has(s.id) && !isActive;
+                    return (
+                      <li key={s.id}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onSelectSlide(idx);
+                            setMobileDrawerOpen(false);
+                          }}
+                          className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left transition-colors ${
+                            isActive
+                              ? 'bg-[#EFF6FF] text-[#1D4ED8] font-semibold'
+                              : 'text-slate-700 hover:bg-slate-50 hover:text-slate-950'
+                          }`}
+                        >
+                          {isDone ? (
+                            <CheckCircle2
+                              className="h-3.5 w-3.5 shrink-0 text-emerald-600"
+                              aria-hidden="true"
+                            />
+                          ) : (
+                            <LessonKindIcon kind={kind} active={isActive} />
+                          )}
+                          <span className="min-w-0 flex-1 truncate text-[12.5px] leading-snug">
+                            <span className="font-mono text-[11px] opacity-65 mr-1.5 tabular-nums">
+                              {String(s.id).padStart(2, '0')}
+                            </span>
+                            {s.keyword}
+                          </span>
+                          <span className="font-mono text-[10.5px] text-slate-400 tabular-nums shrink-0">
+                            {s.durationMinutes}m
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+          );
+        })}
+      </nav>
+
+      {/* Pinned Exam Action at Bottom of Outline */}
+      <div className="border-t border-slate-200 p-3.5">
+        <button
+          type="button"
+          onClick={() => onOpenExam(deck.classId)}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-blue-200 bg-[#EFF6FF] px-3 py-2 text-xs font-semibold text-[#1D4ED8] hover:bg-blue-100/70 transition-colors"
+        >
+          <ClipboardCheck className="h-3.5 w-3.5" aria-hidden="true" />
+          Take Class 0{deck.classId} Official Exam
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="app-canvas relative flex min-h-[100dvh] w-full flex-col overflow-x-clip text-slate-900">
+      {/* Subtle 2px Top Progress Bar */}
+      <div
+        aria-hidden="true"
+        className="fixed inset-x-0 top-0 z-50 h-[2px] bg-slate-200/80"
+      >
+        <div
+          className="h-full bg-[#1D4ED8] transition-all duration-300"
+          style={{ width: `${progressPct}%` }}
+        />
+      </div>
+
+      {/* Focused LMS Lesson Player Top Bar */}
+      <header className="sticky top-0 z-30 border-b border-slate-200/90 bg-white/95 backdrop-blur-sm">
+        <div className="flex h-14 items-center justify-between gap-3 px-4 sm:px-6">
+          {/* Left: Back to Curriculum + Outline Toggle + Lesson Breadcrumb */}
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             <button
               type="button"
               onClick={() => onSelectView('roadmap')}
-              className="text-[#8ba2b0] hover:text-[#edf4f5] transition-colors whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60e0c0] rounded"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 transition-colors whitespace-nowrap shrink-0"
             >
-              20-Class Roadmap
+              <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+              <span className="hidden sm:inline">Curriculum</span>
             </button>
+
+            {/* Desktop Sidebar Focus Mode Toggle */}
             <button
               type="button"
-              onClick={() => onSelectView('toolkit')}
-              className="text-[#8ba2b0] hover:text-[#edf4f5] transition-colors whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60e0c0] rounded"
+              onClick={() => setSidebarOpen((v) => !v)}
+              aria-label={sidebarOpen ? 'Hide course outline' : 'Show course outline'}
+              title={sidebarOpen ? 'Focus mode (hide outline)' : 'Show course outline'}
+              className="hidden xl:inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 transition-colors whitespace-nowrap shrink-0"
             >
-              Tool Reference
+              {sidebarOpen ? (
+                <PanelLeftClose className="h-3.5 w-3.5" aria-hidden="true" />
+              ) : (
+                <PanelLeft className="h-3.5 w-3.5" aria-hidden="true" />
+              )}
+              <span>{sidebarOpen ? 'Focus' : 'Outline'}</span>
             </button>
-          </nav>
-        </div>
 
-        {/* Center Quiet Keyboard Hint (Wide Desktop) */}
-        <p className="hidden 2xl:block font-mono text-[11px] tracking-[0.06em] text-[#6d8595] whitespace-nowrap">
-          ← → navigate · T teacher cue · G all slides
-        </p>
+            {/* Mobile / Tablet Outline Drawer Button */}
+            <button
+              type="button"
+              onClick={() => setMobileDrawerOpen(true)}
+              aria-label="Open course outline"
+              className="inline-flex xl:hidden items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors whitespace-nowrap shrink-0"
+            >
+              <PanelLeft className="h-3.5 w-3.5" aria-hidden="true" />
+              <span>Lessons</span>
+            </button>
 
-        {/* Right Slide Eyebrow + Minute Stamp */}
-        <div className="flex items-center gap-3 font-mono text-[11px] tabular-nums whitespace-nowrap shrink-0">
-          <span className="hidden md:inline tracking-[0.12em] text-[#8ba2b0]">
-            {slide.eyebrow}
-          </span>
-          <span
-            className={`rounded-md border px-2 py-0.5 font-semibold ${
-              slide.isBreakSlide
-                ? 'border-[#ffad70]/45 bg-[#34251c] text-[#ffad70]'
-                : 'border-[#60e0c0]/35 bg-[#122a33] text-[#60e0c0]'
-            }`}
-          >
-            {pacingItem.shortStamp} min
-          </span>
+            <span aria-hidden="true" className="hidden md:block h-4 w-px bg-slate-200" />
+
+            <div className="hidden md:flex min-w-0 items-center gap-2 text-[13px]">
+              <span className="font-mono text-xs font-semibold text-[#1D4ED8] whitespace-nowrap">
+                Class 0{deck.classId}
+              </span>
+              <span aria-hidden="true" className="text-slate-300">/</span>
+              <span className="truncate font-medium text-slate-700">
+                {slide.keyword}
+              </span>
+            </div>
+          </div>
+
+          {/* Right: Quick Views, Pacing, Grid, Theme & Account */}
+          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+            <nav aria-label="Course shortcuts" className="hidden lg:flex items-center gap-4 mr-1 text-xs">
+              <button
+                type="button"
+                onClick={() => onOpenExam(deck.classId)}
+                className="inline-flex items-center gap-1 font-semibold text-[#1D4ED8] hover:text-[#1E40AF] whitespace-nowrap"
+              >
+                <ClipboardCheck className="h-3.5 w-3.5" aria-hidden="true" />
+                Exam
+              </button>
+              <button
+                type="button"
+                onClick={() => onSelectView('results')}
+                className="font-medium text-slate-600 hover:text-slate-950 whitespace-nowrap"
+              >
+                Results
+              </button>
+              <button
+                type="button"
+                onClick={() => onSelectView('toolkit')}
+                className="font-medium text-slate-600 hover:text-slate-950 whitespace-nowrap"
+              >
+                Tools
+              </button>
+              {isInstructor && (
+                <button
+                  type="button"
+                  onClick={() => onSelectView('instructor')}
+                  className="inline-flex items-center gap-1 font-semibold text-amber-700 hover:text-amber-800 whitespace-nowrap"
+                >
+                  <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
+                  Instructor
+                  {pendingReviewCount > 0 && (
+                    <span className="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-amber-800 leading-none tabular-nums">
+                      {pendingReviewCount}
+                    </span>
+                  )}
+                </button>
+              )}
+            </nav>
+
+            <span
+              className={`hidden sm:inline font-mono text-xs font-medium tabular-nums ${
+                slide.isBreakSlide ? 'text-amber-700' : 'text-slate-500'
+              }`}
+            >
+              {pacingItem.shortStamp} min
+            </span>
+
+            <button
+              type="button"
+              onClick={onToggleGrid}
+              aria-label={`Open all ${totalSlides} slides grid`}
+              title="All Lessons Grid (G)"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 transition-colors"
+            >
+              <LayoutGrid className="h-3.5 w-3.5" aria-hidden="true" />
+            </button>
+
+            <ThemeToggle compact />
+
+            <button
+              type="button"
+              onClick={onSignOut}
+              aria-label="Sign out"
+              title="Sign out"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+            >
+              <LogOut className="h-3.5 w-3.5" aria-hidden="true" />
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* Centered Spacious Keynote Stage */}
-      <main className="relative z-10 mx-auto flex w-full max-w-[1160px] flex-1 flex-col items-center justify-center px-5 pt-3 pb-24 sm:px-10">
-        <div
-          key={`${deck.classId}-${slide.id}`}
-          className="animate-slide-enter flex w-full flex-col items-center"
-        >
-          {slide.stageType !== 'hero' && (
-            <div className="mb-6 w-full max-w-[900px] text-center sm:mb-7">
-              <div
-                className={`mb-2 font-mono text-[11px] font-semibold tracking-[0.16em] uppercase ${
-                  slide.isBreakSlide ? 'text-[#ffad70]' : 'text-[#60e0c0]'
-                }`}
-              >
-                {slide.eyebrow}
-              </div>
-              <h1 className="font-display text-2xl font-extrabold leading-[1.1] tracking-[-0.03em] text-[#f1f5f4] sm:text-4xl lg:text-[40px]">
-                {slide.headline}
-              </h1>
-              <p className="mx-auto mt-2.5 max-w-[740px] text-sm leading-relaxed text-[#a5b7c1] sm:text-[15px]">
-                <InlineCodeText text={slide.oneLineSummary} />
-              </p>
-            </div>
-          )}
+      {/* Main Split LMS Player Body: Left Outline Sidebar + Right Lesson Canvas */}
+      <div className="flex flex-1 min-h-0">
+        {/* Desktop Collapsible Course Outline Sidebar */}
+        {sidebarOpen && (
+          <aside
+            aria-label="Course outline sidebar"
+            className="hidden xl:block w-[308px] shrink-0 border-r border-slate-200 bg-white sticky top-14 h-[calc(100dvh-3.5rem)]"
+          >
+            {outlineContent}
+          </aside>
+        )}
 
-          {/* 80% Visual Interactive Canvas */}
-          <div className="flex w-full justify-center">
-            {renderStage(slide, onSelectClass)}
-          </div>
-
-          {/* Subtle Compact Real-World Tool Strip */}
-          {slide.realWorldTools && slide.realWorldTools.length > 0 && (
-            <div className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[11px] text-[#8ca3b2]">
-              <span className="font-mono tracking-[0.12em] text-[#60e0c0] uppercase">
-                Real-World Tools:
-              </span>
-              {slide.realWorldTools.map((tool) => (
-                <a
-                  key={tool.name}
-                  href={tool.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  title={`${tool.role} — ${tool.useCase}`}
-                  className="inline-flex items-center gap-1 text-[#c6dae3] hover:text-[#60e0c0] transition-colors whitespace-nowrap"
-                >
-                  <span className="font-medium">{tool.name}</span>
-                  <span className="text-[#7891a1]">({tool.role})</span>
-                  <ExternalLink className="h-2.5 w-2.5 opacity-70" aria-hidden="true" />
-                </a>
-              ))}
-            </div>
-          )}
-        </div>
-      </main>
-
-      {/* Bottom Floating Deck Bar */}
-      <footer className="pointer-events-none fixed inset-x-0 bottom-0 z-30 flex items-end justify-between gap-2 bg-gradient-to-t from-[#0b1119] via-[#0b1119]/90 to-transparent px-4 pt-6 pb-4 sm:bg-none sm:px-9 sm:pt-0 sm:pb-6">
-        {/* Bottom-Left: Floating Teacher Cue Button + Warm Cream Paper Popover */}
-        <div className="pointer-events-auto relative">
-          {showTeacherCue && (
+        {/* Mobile / Tablet Slide-Over Outline Drawer */}
+        {mobileDrawerOpen && (
+          <div className="fixed inset-0 z-50 flex xl:hidden">
+            <div
+              className="fixed inset-0 bg-slate-950/40 backdrop-blur-[1px]"
+              onClick={() => setMobileDrawerOpen(false)}
+              aria-hidden="true"
+            />
             <aside
               role="dialog"
-              aria-label="Instructor Teacher Cue"
-              className="absolute bottom-14 left-0 z-40 w-[min(430px,calc(100vw-32px))] rounded-2xl border border-[#d6d0bc] bg-[#f4f2e9] p-5 text-[#17232f] shadow-[0_24px_64px_rgba(0,0,0,0.6)]"
+              aria-modal="true"
+              aria-label="Course lessons outline"
+              className="relative z-10 h-full w-[min(320px,86vw)] border-r border-slate-200 bg-white shadow-2xl"
             >
-              <div className="mb-3 flex items-center justify-between gap-3 border-b border-[#dad4c2] pb-2.5">
-                <div className="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => setCueTab('script')}
-                    className={`rounded-md px-2.5 py-1 font-mono text-[11px] font-semibold transition-colors whitespace-nowrap ${
-                      cueTab === 'script'
-                        ? 'bg-[#17232f] text-[#f4f2e9]'
-                        : 'text-[#4c5c68] hover:bg-[#e7e2d1]'
+              {outlineContent}
+            </aside>
+          </div>
+        )}
+
+        {/* Right Primary Lesson Column */}
+        <div className="flex min-w-0 flex-1 flex-col justify-between">
+          <main className="mx-auto flex w-full max-w-[1080px] flex-1 flex-col items-center justify-center px-4 py-8 sm:px-10 sm:py-10">
+            <div
+              key={`${deck.classId}-${slide.id}`}
+              className="animate-slide-enter flex w-full flex-col items-center"
+            >
+              {slide.stageType !== 'hero' && (
+                <div className="mb-8 w-full max-w-[820px] text-center">
+                  <p
+                    className={`mb-2 text-[13px] font-medium ${
+                      slide.isBreakSlide ? 'text-amber-700' : 'text-[#1D4ED8]'
                     }`}
                   >
-                    Live Script
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCueTab('bangla')}
-                    className={`rounded-md px-2.5 py-1 font-mono text-[11px] font-semibold transition-colors whitespace-nowrap ${
-                      cueTab === 'bangla'
-                        ? 'bg-[#17232f] text-[#f4f2e9]'
-                        : 'text-[#4c5c68] hover:bg-[#e7e2d1]'
-                    }`}
-                  >
-                    Bangla Prep
-                  </button>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={onCloseTeacherCue}
-                  aria-label="Close Teacher Cue"
-                  className="rounded-md p-1 text-[#50616d] hover:bg-[#e5e0cf] hover:text-[#17232f] transition-colors"
-                >
-                  <X className="h-4 w-4" aria-hidden="true" />
-                </button>
-              </div>
-
-              {cueTab === 'script' ? (
-                <div className="space-y-3 text-xs leading-relaxed">
-                  <div>
-                    <span className="block font-mono text-[10px] font-bold tracking-[0.12em] text-[#0d6e5c] uppercase">
-                      Say Out Loud
-                    </span>
-                    <p className="mt-0.5 text-[13px] text-[#17232f]">
-                      <InlineCodeText
-                        text={slide.teacherCue.sayThis}
-                        codeClassName="rounded bg-[#17232f]/10 px-1 py-0.5 font-mono text-[0.9em] text-[#0b5c4d]"
-                      />
-                    </p>
-                  </div>
-                  <div className="rounded-lg bg-[#eae6d6] px-3 py-2">
-                    <span className="block font-mono text-[10px] font-bold tracking-[0.12em] text-[#9b4f1b] uppercase">
-                      Real-World Analogy
-                    </span>
-                    <p className="mt-0.5 text-[#273847]">
-                      <InlineCodeText
-                        text={slide.teacherCue.realWorldAnalogy}
-                        codeClassName="rounded bg-[#17232f]/10 px-1 py-0.5 font-mono text-[0.9em] text-[#0b5c4d]"
-                      />
-                    </p>
-                  </div>
-                  <div>
-                    <span className="block font-mono text-[10px] font-bold tracking-[0.12em] text-[#285a8f] uppercase">
-                      Live Click Action
-                    </span>
-                    <p className="mt-0.5 text-[#273847]">
-                      <InlineCodeText
-                        text={slide.teacherCue.liveDemoStep}
-                        codeClassName="rounded bg-[#17232f]/10 px-1 py-0.5 font-mono text-[0.9em] text-[#0b5c4d]"
-                      />
-                    </p>
-                  </div>
-                  <div className="border-t border-[#dad4c2] pt-2.5">
-                    <span className="block font-mono text-[10px] font-bold tracking-[0.12em] text-[#17232f] uppercase">
-                      Ask Your Student
-                    </span>
-                    <p className="mt-0.5 font-medium text-[#17232f]">
-                      <InlineCodeText
-                        text={slide.teacherCue.checkQuestion}
-                        codeClassName="rounded bg-[#17232f]/10 px-1 py-0.5 font-mono text-[0.9em] text-[#0b5c4d]"
-                      />
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-3 text-xs leading-relaxed">
-                  <div className="rounded-lg border border-[#d6ccb4] bg-[#ebe6d4] p-3.5">
-                    <span className="block font-mono text-[10px] font-bold tracking-[0.12em] text-[#9b4f1b] uppercase mb-1">
-                      Vibe-Coder Instructor Prep (Banglish)
-                    </span>
-                    <p className="text-[13px] leading-relaxed text-[#17232f]">
-                      <InlineCodeText
-                        text={slide.teacherCue.banglaPrepNote}
-                        codeClassName="rounded bg-[#17232f]/10 px-1 py-0.5 font-mono text-[0.9em] text-[#8a4314]"
-                      />
-                    </p>
-                  </div>
-                  <div>
-                    <span className="block font-mono text-[10px] font-bold tracking-[0.12em] text-[#0d6e5c] uppercase">
-                      Live Demo Reminder
-                    </span>
-                    <p className="mt-0.5 text-[#273847]">
-                      <InlineCodeText
-                        text={slide.teacherCue.liveDemoStep}
-                        codeClassName="rounded bg-[#17232f]/10 px-1 py-0.5 font-mono text-[0.9em] text-[#0b5c4d]"
-                      />
-                    </p>
-                  </div>
-                  <div className="border-t border-[#dad4c2] pt-2.5">
-                    <span className="block font-mono text-[10px] font-bold tracking-[0.12em] text-[#17232f] uppercase">
-                      Student Check Question
-                    </span>
-                    <p className="mt-0.5 font-medium text-[#17232f]">
-                      <InlineCodeText
-                        text={slide.teacherCue.checkQuestion}
-                        codeClassName="rounded bg-[#17232f]/10 px-1 py-0.5 font-mono text-[0.9em] text-[#0b5c4d]"
-                      />
-                    </p>
-                  </div>
+                    {slide.eyebrow}
+                  </p>
+                  <h1 className="font-display text-2xl font-bold leading-[1.16] tracking-[-0.03em] text-slate-900 sm:text-[34px]">
+                    {slide.headline}
+                  </h1>
+                  <p className="mx-auto mt-3 max-w-[660px] text-[15px] leading-[1.65] text-slate-600 sm:text-[16px]">
+                    <InlineCodeText text={slide.oneLineSummary} />
+                  </p>
                 </div>
               )}
-            </aside>
-          )}
 
-          <button
-            type="button"
-            onClick={onToggleTeacherCue}
-            aria-expanded={showTeacherCue}
-            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-2 sm:gap-2 sm:px-4 font-mono text-[11px] sm:text-xs font-semibold backdrop-blur-md transition-all whitespace-nowrap shadow-[0_8px_24px_rgba(0,0,0,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60e0c0] ${
-              showTeacherCue
-                ? 'border-[#f4f2e9] bg-[#f4f2e9] text-[#17232f]'
-                : 'border-[#60e0c0]/45 bg-[#152637]/90 text-[#60e0c0] hover:border-[#60e0c0] hover:bg-[#193044]'
-            }`}
-          >
-            {showTeacherCue ? (
-              <>
-                <X className="h-3.5 w-3.5" aria-hidden="true" />
-                Close Cue
-              </>
-            ) : (
-              <>
-                <Plus className="h-3.5 w-3.5" aria-hidden="true" />
-                Teacher Cue
-              </>
-            )}
-          </button>
+              {/* Main Interactive Visual Stage */}
+              <div className="flex w-full justify-center">
+                {renderStage(slide, onSelectClass)}
+              </div>
+
+              {/* Quiet Real-World Tool Links */}
+              {slide.realWorldTools && slide.realWorldTools.length > 0 && (
+                <div className="mt-7 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[13px] text-slate-500">
+                  <span className="font-medium text-slate-700">Tools referenced:</span>
+                  {slide.realWorldTools.map((tool) => (
+                    <a
+                      key={tool.name}
+                      href={tool.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      title={`${tool.role} — ${tool.useCase}`}
+                      className="inline-flex items-center gap-1 text-slate-700 hover:text-[#1D4ED8] transition-colors whitespace-nowrap"
+                    >
+                      <span className="font-medium">{tool.name}</span>
+                      <span className="text-slate-400">({tool.role})</span>
+                      <ExternalLink className="h-3 w-3 opacity-70" aria-hidden="true" />
+                    </a>
+                  ))}
+                </div>
+              )}
+
+              {/* End-of-Class Official Exam Card */}
+              {currentIndex >= totalSlides - 3 && (
+                <div className="mt-8 flex w-full max-w-[840px] flex-wrap items-center justify-between gap-4 rounded-xl border border-blue-200 bg-white px-6 py-5 shadow-[0_1px_3px_rgba(15,23,42,0.05)]">
+                  <div className="text-left space-y-1">
+                    <span className="block text-xs font-semibold text-[#1D4ED8]">
+                      Official Class 0{deck.classId} Assessment · Saved to Cloud
+                    </span>
+                    <p className="text-sm text-slate-600">
+                      Complete the graded MCQs, multi-select checks, and short written question — all attempts remain archived permanently.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => onOpenExam(deck.classId)}
+                    className="inline-flex items-center gap-2 rounded-lg bg-[#1D4ED8] px-4 py-2.5 text-[13px] font-semibold text-white hover:bg-[#1E40AF] transition-colors whitespace-nowrap"
+                  >
+                    <ClipboardCheck className="h-4 w-4" aria-hidden="true" />
+                    Take Class 0{deck.classId} Exam
+                  </button>
+                </div>
+              )}
+            </div>
+          </main>
+
+          {/* Dedicated Sticky LMS Lesson Player Footer */}
+          <footer className="sticky bottom-0 z-20 border-t border-slate-200/90 bg-white/95 backdrop-blur-sm">
+            <div className="mx-auto flex max-w-[1080px] items-center justify-between gap-3 px-4 py-3 sm:px-10">
+              {/* Left: Previous Lesson + Optional Instructor Teacher Cue */}
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={onPrev}
+                  disabled={currentIndex === 0}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-[13px] font-semibold text-slate-700 hover:border-slate-300 hover:bg-slate-50 disabled:opacity-35 disabled:hover:bg-white transition-colors whitespace-nowrap"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span className="hidden sm:inline">Previous</span>
+                </button>
+
+                {isInstructor && (
+                  <div className="relative">
+                    {showTeacherCue && (
+                      <aside
+                        role="dialog"
+                        aria-label="Instructor Teacher Cue"
+                        className="absolute bottom-12 left-0 z-40 w-[min(440px,calc(100vw-32px))] rounded-xl border border-slate-200 bg-white p-5 text-slate-900 shadow-[0_20px_50px_rgba(15,23,42,0.16)]"
+                      >
+                        <div className="mb-4 flex items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                          <div className="inline-flex items-center gap-1 rounded-lg bg-slate-100 p-0.5">
+                            <button
+                              type="button"
+                              onClick={() => setCueTab('script')}
+                              className={`rounded-md px-3 py-1 text-xs transition-all whitespace-nowrap ${
+                                cueTab === 'script'
+                                  ? 'bg-white font-semibold text-slate-900 shadow-2xs'
+                                  : 'font-medium text-slate-600 hover:text-slate-900'
+                              }`}
+                            >
+                              Live Script
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setCueTab('bangla')}
+                              className={`rounded-md px-3 py-1 text-xs transition-all whitespace-nowrap ${
+                                cueTab === 'bangla'
+                                  ? 'bg-white font-semibold text-slate-900 shadow-2xs'
+                                  : 'font-medium text-slate-600 hover:text-slate-900'
+                              }`}
+                            >
+                              Bangla Prep
+                            </button>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={onCloseTeacherCue}
+                            aria-label="Close Teacher Cue"
+                            className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"
+                          >
+                            <X className="h-4 w-4" aria-hidden="true" />
+                          </button>
+                        </div>
+
+                        {cueTab === 'script' ? (
+                          <div className="space-y-3.5 text-[13.5px] leading-relaxed">
+                            <div>
+                              <span className="block text-xs font-semibold text-[#1D4ED8]">
+                                Say out loud
+                              </span>
+                              <p className="mt-0.5 text-slate-800">
+                                <InlineCodeText text={slide.teacherCue.sayThis} />
+                              </p>
+                            </div>
+                            <div className="rounded-lg bg-slate-50 border border-slate-200/80 px-3.5 py-2.5">
+                              <span className="block text-xs font-semibold text-amber-800">
+                                Real-world analogy
+                              </span>
+                              <p className="mt-0.5 text-slate-700">
+                                <InlineCodeText text={slide.teacherCue.realWorldAnalogy} />
+                              </p>
+                            </div>
+                            <div>
+                              <span className="block text-xs font-semibold text-slate-700">
+                                Live click action
+                              </span>
+                              <p className="mt-0.5 text-slate-700">
+                                <InlineCodeText text={slide.teacherCue.liveDemoStep} />
+                              </p>
+                            </div>
+                            <div className="border-t border-slate-100 pt-3">
+                              <span className="block text-xs font-semibold text-emerald-800">
+                                Ask your student
+                              </span>
+                              <p className="mt-0.5 font-medium text-slate-900">
+                                <InlineCodeText text={slide.teacherCue.checkQuestion} />
+                              </p>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-3.5 text-[13.5px] leading-relaxed">
+                            <div className="rounded-lg border border-amber-200/90 bg-amber-50/70 p-3.5">
+                              <span className="block text-xs font-semibold text-amber-900 mb-1">
+                                Instructor prep note (Banglish)
+                              </span>
+                              <p className="text-slate-800">
+                                <InlineCodeText text={slide.teacherCue.banglaPrepNote} />
+                              </p>
+                            </div>
+                            <div>
+                              <span className="block text-xs font-semibold text-slate-700">
+                                Live demo reminder
+                              </span>
+                              <p className="mt-0.5 text-slate-700">
+                                <InlineCodeText text={slide.teacherCue.liveDemoStep} />
+                              </p>
+                            </div>
+                            <div className="border-t border-slate-100 pt-3">
+                              <span className="block text-xs font-semibold text-emerald-800">
+                                Student check question
+                              </span>
+                              <p className="mt-0.5 font-medium text-slate-900">
+                                <InlineCodeText text={slide.teacherCue.checkQuestion} />
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </aside>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={onToggleTeacherCue}
+                      aria-expanded={showTeacherCue}
+                      className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-[13px] font-semibold transition-all whitespace-nowrap ${
+                        showTeacherCue
+                          ? 'border-slate-900 bg-slate-900 text-white'
+                          : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
+                      }`}
+                    >
+                      {showTeacherCue ? (
+                        <>
+                          <X className="h-3.5 w-3.5" aria-hidden="true" />
+                          <span className="hidden sm:inline">Close Cue</span>
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="h-3.5 w-3.5 text-[#1D4ED8]" aria-hidden="true" />
+                          <span className="hidden sm:inline">Teacher Cue</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Center: Quiet Lesson Progress Stamp */}
+              <div className="flex items-center gap-2 text-xs text-slate-500 tabular-nums whitespace-nowrap">
+                <span className="font-mono font-semibold text-slate-700">
+                  Lesson {paddedCurrent} / {paddedTotal}
+                </span>
+                <span aria-hidden="true" className="hidden md:inline text-slate-300">·</span>
+                <span className="hidden md:inline truncate max-w-[220px]">{slide.sectionTag}</span>
+              </div>
+
+              {/* Right: Complete & Continue OR Official Exam */}
+              {currentIndex < totalSlides - 1 ? (
+                <button
+                  type="button"
+                  onClick={onNext}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#1D4ED8] px-4 py-2 text-[13px] font-semibold text-white hover:bg-[#1E40AF] transition-colors whitespace-nowrap shadow-xs"
+                >
+                  <span>Next Lesson</span>
+                  <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => onOpenExam(deck.classId)}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-[13px] font-semibold text-white hover:bg-emerald-700 transition-colors whitespace-nowrap shadow-xs"
+                >
+                  <ClipboardCheck className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span>Take Class 0{deck.classId} Exam</span>
+                </button>
+              )}
+            </div>
+          </footer>
         </div>
+      </div>
 
-        {/* Bottom-Center: Quiet Section Stamp */}
-        <div className="hidden lg:block pb-2 font-mono text-[10px] tracking-[0.18em] text-[#6d8595] uppercase whitespace-nowrap">
-          {slide.sectionTag}
-        </div>
-
-        {/* Bottom-Right: Slide Grid + Prev / Counter / Next */}
-        <div className="pointer-events-auto flex items-center gap-1.5 rounded-full border border-white/14 bg-[#12202f]/90 p-1.5 backdrop-blur-md shadow-[0_8px_28px_rgba(0,0,0,0.45)]">
-          <button
-            type="button"
-            onClick={onToggleGrid}
-            aria-label={`Open all ${totalSlides} slides grid`}
-            title="All Slides (G)"
-            className="flex h-8 w-8 items-center justify-center rounded-full text-[#9eb4c2] hover:bg-white/10 hover:text-[#60e0c0] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60e0c0]"
-          >
-            <LayoutGrid className="h-4 w-4" aria-hidden="true" />
-          </button>
-
-          <span aria-hidden="true" className="h-4 w-px bg-white/12 mx-0.5" />
-
-          <button
-            type="button"
-            onClick={onPrev}
-            disabled={currentIndex === 0}
-            aria-label="Previous slide"
-            className="flex h-8 w-8 items-center justify-center rounded-full text-[#dbe8ee] hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60e0c0]"
-          >
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          </button>
-
-          <span className="px-2 font-mono text-xs font-semibold text-[#d3e2e8] tabular-nums whitespace-nowrap">
-            {paddedCurrent} <span className="text-[#698292]">/</span> {paddedTotal}
-          </span>
-
-          <button
-            type="button"
-            onClick={onNext}
-            disabled={currentIndex === totalSlides - 1}
-            aria-label="Next slide"
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-[#60e0c0] text-[#09181d] hover:bg-[#7ae8cc] disabled:bg-white/10 disabled:text-[#698292] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60e0c0]"
-          >
-            <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          </button>
-        </div>
-      </footer>
-
-      {/* Full-Screen Slide Grid Overlay (G or Grid Button) */}
+      {/* Clean Airy Slide Grid Overlay (G Shortcut) */}
       {showGrid && (
         <div
           role="dialog"
           aria-modal="true"
           aria-label={`All Class 0${deck.classId} Slides`}
-          className="fixed inset-0 z-50 overflow-y-auto bg-[#070e16]/95 p-5 backdrop-blur-md sm:p-10"
+          className="fixed inset-0 z-50 overflow-y-auto bg-[#F8FAFC]/97 p-5 backdrop-blur-sm sm:p-10"
         >
-          <div className="mx-auto max-w-[1260px] space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/12 pb-4">
+          <div className="mx-auto max-w-[1240px] space-y-7">
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-5">
               <div>
-                <p className="font-mono text-[11px] tracking-[0.14em] text-[#60e0c0] uppercase">
-                  CLASS 0{deck.classId} · {totalSlides} SLIDES · {pacing.totalClassMinutes} MIN (3 HOURS)
+                <p className="text-xs font-medium text-[#1D4ED8] tabular-nums">
+                  Class 0{deck.classId} · {totalSlides} lessons · {pacing.totalClassMinutes} min (3 hours)
                 </p>
-                <h2 className="mt-1 font-display text-2xl font-extrabold text-[#f1f5f4]">
+                <h2 className="mt-1 font-display text-2xl font-bold text-slate-900">
                   {deck.title}
                 </h2>
               </div>
 
               <div className="flex flex-wrap items-center gap-2.5">
-                {READY_CLASS_IDS.map((cid) => (
-                  <button
-                    key={cid}
-                    type="button"
-                    onClick={() => onSelectClass(cid)}
-                    className={`rounded-lg border px-3 py-2 font-mono text-xs font-semibold transition-colors whitespace-nowrap ${
-                      cid === deck.classId
-                        ? 'border-[#60e0c0] bg-[#15353a] text-[#60e0c0]'
-                        : 'border-white/12 bg-[#12202e] text-[#9eb2be] hover:text-white'
-                    }`}
-                  >
-                    {COURSE_DECKS[cid].shortTitle}
-                  </button>
-                ))}
+                <div className="inline-flex items-center gap-1 rounded-lg bg-slate-100 p-1">
+                  {READY_CLASS_IDS.map((cid) => (
+                    <button
+                      key={cid}
+                      type="button"
+                      onClick={() => onSelectClass(cid)}
+                      className={`rounded-md px-3 py-1.5 text-xs transition-all whitespace-nowrap ${
+                        cid === deck.classId
+                          ? 'bg-white font-semibold text-slate-900 shadow-2xs'
+                          : 'font-medium text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      {COURSE_DECKS[cid].shortTitle}
+                    </button>
+                  ))}
+                </div>
                 <button
                   type="button"
                   onClick={onCloseGrid}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-white/15 bg-[#132130] px-3.5 py-2 font-mono text-xs font-semibold text-[#d3e2e8] hover:border-[#60e0c0] transition-colors whitespace-nowrap"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:bg-slate-50 transition-colors whitespace-nowrap"
                 >
                   <X className="h-3.5 w-3.5" aria-hidden="true" />
                   Close (Esc)
@@ -518,7 +832,7 @@ export function SlideWorkspace({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {slides.map((s, idx) => {
                 const isActive = idx === currentIndex;
                 const item = pacing.items[idx];
@@ -532,45 +846,45 @@ export function SlideWorkspace({
                       onSelectSlide(idx);
                       onCloseGrid();
                     }}
-                    className={`flex flex-col justify-between rounded-xl border p-4 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60e0c0] ${
+                    className={`flex flex-col justify-between rounded-xl border p-4 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D4ED8] ${
                       isActive
-                        ? 'border-[#60e0c0] bg-[#15353a] shadow-[0_0_0_1px_rgba(96,224,192,0.3)]'
+                        ? 'border-[#1D4ED8] bg-[#EFF6FF]/60 ring-1 ring-[#1D4ED8]/20'
                         : s.isBreakSlide
-                          ? 'border-[#ffad70]/35 bg-[#231f20] hover:border-[#ffad70]'
-                          : 'border-white/10 bg-[#12202e] hover:border-[#60e0c0]/50 hover:bg-[#162839]'
+                          ? 'border-amber-200 bg-amber-50/50 hover:border-amber-300'
+                          : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-xs'
                     }`}
                   >
                     <div>
-                      <div className="flex items-center justify-between gap-2 font-mono text-[10px] tabular-nums">
+                      <div className="flex items-center justify-between gap-2 font-mono text-[11px] tabular-nums">
                         <span
                           className={
                             isActive
-                              ? 'font-bold text-[#60e0c0]'
+                              ? 'font-semibold text-[#1D4ED8]'
                               : s.isBreakSlide
-                                ? 'font-bold text-[#ffad70]'
+                                ? 'font-semibold text-amber-700'
                                 : isPractice
-                                  ? 'font-bold text-[#ffad70]'
+                                  ? 'font-semibold text-emerald-700'
                                   : isTool
-                                    ? 'font-bold text-[#80b6ff]'
-                                    : 'text-[#7e98a8]'
+                                    ? 'font-semibold text-indigo-700'
+                                    : 'text-slate-500'
                           }
                         >
-                          SLIDE {String(s.id).padStart(2, '0')}
-                          {isPractice ? ' · TEST' : isTool ? ' · TOOL UI' : ''}
+                          Lesson {String(s.id).padStart(2, '0')}
+                          {isPractice ? ' · Quiz' : isTool ? ' · Tool UI' : ''}
                         </span>
-                        <span className="text-[#8ba2b0]">{item.shortStamp} min</span>
+                        <span className="text-slate-400">{item.shortStamp}m</span>
                       </div>
-                      <p className="mt-2 font-display text-sm font-bold leading-snug text-[#f1f5f4]">
+                      <p className="mt-2 font-display text-[15px] font-bold leading-snug text-slate-900">
                         {s.keyword}
                       </p>
-                      <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-[#9cb0bc]">
+                      <p className="mt-1 line-clamp-2 text-[13px] leading-relaxed text-slate-600">
                         {s.headline.toLowerCase() === s.keyword.toLowerCase()
                           ? s.oneLineSummary
                           : s.headline}
                       </p>
                     </div>
 
-                    <div className="mt-3 pt-2 border-t border-white/8 font-mono text-[10px] text-[#738d9e]">
+                    <div className="mt-3 pt-2.5 border-t border-slate-100 text-[11px] font-medium text-slate-400">
                       {s.part}
                     </div>
                   </button>

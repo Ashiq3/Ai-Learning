@@ -15,28 +15,36 @@ import { IllustratedFrame } from './IllustratedFrame';
 
 const ACCENT_MAP = {
   teal: {
-    border: 'border-[#60e0c0]/55',
-    bg: 'bg-[#133238]',
-    text: 'text-[#60e0c0]',
-    pill: 'bg-[#60e0c0] text-[#09181d]',
+    border: 'border-emerald-200',
+    activeBorder: 'border-emerald-600',
+    bg: 'bg-emerald-50/70',
+    text: 'text-emerald-700',
+    dot: 'bg-emerald-600',
+    tag: 'bg-emerald-50 text-emerald-800 border-emerald-200',
   },
   orange: {
-    border: 'border-[#ffad70]/55',
-    bg: 'bg-[#31231b]',
-    text: 'text-[#ffad70]',
-    pill: 'bg-[#ffad70] text-[#1c120a]',
+    border: 'border-amber-200',
+    activeBorder: 'border-amber-600',
+    bg: 'bg-amber-50/70',
+    text: 'text-amber-700',
+    dot: 'bg-amber-600',
+    tag: 'bg-amber-50 text-amber-800 border-amber-200',
   },
   blue: {
-    border: 'border-[#80b6ff]/55',
-    bg: 'bg-[#17283f]',
-    text: 'text-[#80b6ff]',
-    pill: 'bg-[#80b6ff] text-[#0a1624]',
+    border: 'border-blue-200',
+    activeBorder: 'border-[#1D4ED8]',
+    bg: 'bg-[#EFF6FF]',
+    text: 'text-[#1D4ED8]',
+    dot: 'bg-[#1D4ED8]',
+    tag: 'bg-blue-50 text-blue-800 border-blue-200',
   },
   rose: {
-    border: 'border-[#ff8585]/55',
-    bg: 'bg-[#361c22]',
-    text: 'text-[#ff8585]',
-    pill: 'bg-[#ff8585] text-[#220a0f]',
+    border: 'border-red-200',
+    activeBorder: 'border-red-600',
+    bg: 'bg-red-50/70',
+    text: 'text-red-700',
+    dot: 'bg-red-600',
+    tag: 'bg-red-50 text-red-800 border-red-200',
   },
 } as const;
 
@@ -44,113 +52,110 @@ const ACCENT_MAP = {
 export function HeroStage({ visual }: { visual: SlideVisualConfig }) {
   const [l1, l2, l3] = visual.heroLines ?? ['A click.', 'A request.', 'A reply.'];
   return (
-    <div className="grid w-full max-w-[1060px] grid-cols-1 items-center gap-10 lg:grid-cols-12">
+    <div className="grid w-full max-w-[1060px] grid-cols-1 items-center gap-12 lg:grid-cols-12">
       <div className="lg:col-span-6 space-y-5">
-        <div className="inline-block rounded-full border border-[#60e0c0]/40 px-3.5 py-1.5 font-mono text-[11px] tracking-[0.12em] text-[#60e0c0]">
-          {visual.heroBadge ?? '20-CLASS MASTER COURSE'}
-        </div>
-        <h1 className="font-display text-4xl font-extrabold leading-[1.03] tracking-[-0.04em] text-[#f1f5f4] sm:text-6xl">
+        <p className="text-[13px] font-semibold text-[#1D4ED8]">
+          {visual.heroBadge ?? '20-Class Master Course'}
+        </p>
+        <h1 className="font-display text-4xl font-bold leading-[1.06] tracking-[-0.035em] text-slate-900 sm:text-[54px]">
           <span className="block">{l1}</span>
-          <span className="block text-[#60e0c0]">{l2}</span>
+          <span className="block text-[#1D4ED8]">{l2}</span>
           <span className="block">{l3}</span>
         </h1>
-        <p className="max-w-md text-sm leading-relaxed text-[#9db0bc] sm:text-[15px]">
+        <p className="max-w-lg text-[15.5px] leading-[1.65] text-slate-600">
           <InlineCodeText text={visual.heroSubtext ?? ''} />
         </p>
         {visual.heroQuote && (
-          <div className="rounded-xl border border-white/10 bg-[#132433]/90 p-3.5 text-xs leading-relaxed text-[#b8cdd6]">
-            <span className="block font-mono text-[10px] tracking-[0.12em] text-[#60e0c0] mb-1 uppercase">
-              {visual.heroQuoteLabel ?? 'WHY THIS CLASS MATTERS'}
+          <div className="rounded-xl border border-slate-200 bg-white p-4 text-[13.5px] leading-relaxed text-slate-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+            <span className="block text-xs font-semibold text-slate-900 mb-1">
+              {visual.heroQuoteLabel ?? 'Why this class matters'}
             </span>
             {visual.heroQuote}
           </div>
         )}
       </div>
 
-      {/* Animated Orbital Diagram */}
+      {/* Clean Architectural Flow Diagram */}
       <div className="lg:col-span-6 relative hidden min-h-[340px] items-center justify-center sm:flex">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute h-[230px] w-[420px] -rotate-[20deg] rounded-full border border-[#89b7c5]/15"
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute h-[290px] w-[490px] rotate-[22deg] rounded-full border border-[#89b7c5]/10"
-        />
-
-        <div className="relative z-10 flex w-full items-center justify-between gap-4 px-2">
-          <div className="w-[195px] rounded-2xl border border-[#94afc4]/25 bg-gradient-to-br from-[#1a2c3d] to-[#111b29] p-4 shadow-[0_14px_40px_rgba(0,0,0,0.45)]">
-            <span className="block font-mono text-[9px] tracking-[0.15em] text-[#8ba0b1] uppercase">
-              {visual.heroLeftLabel ?? 'YOUR SCREEN'}
-            </span>
-            <div className="mt-3 space-y-2.5 rounded-lg bg-[#0d1722] p-3">
-              <div className="text-[10px] font-semibold text-[#8299a8]">Live App UI</div>
-              <div className="ml-4 rounded-lg bg-[#234b51] px-2.5 py-1.5 text-[11px] text-[#aff6dd]">
-                Send request →
-              </div>
-              <div className="mr-4 rounded-lg bg-[#253346] px-2.5 py-1.5 text-[11px] text-[#c8d8e0]">
-                200 OK Reply!
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-1 flex-col items-center gap-4">
-            <div className="w-full space-y-1.5 text-center">
-              <span className="inline-block rounded bg-[#112734] px-2 py-1 font-mono text-[9px] tracking-[0.1em] text-[#60e0c0]">
-                REQUEST →
+        <div className="w-full rounded-2xl border border-slate-200 bg-white p-7 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
+          <div className="flex w-full items-center justify-between gap-4">
+            {/* Left Node: Screen */}
+            <div className="w-[185px] rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+              <span className="block text-[11px] font-semibold text-slate-500">
+                {visual.heroLeftLabel ?? 'Your Screen'}
               </span>
-              <svg viewBox="0 0 120 8" className="h-2 w-full" aria-hidden="true">
-                <line
-                  x1="2"
-                  y1="4"
-                  x2="118"
-                  y2="4"
-                  stroke="#60e0c0"
-                  strokeWidth="2"
-                  strokeDasharray="6 6"
-                  className="animate-flow-dash"
-                />
-              </svg>
-            </div>
-            <div className="flex h-16 w-20 flex-col items-center justify-center rounded-2xl border border-[#60e0c0]/40 bg-[#15343a] text-[#60e0c0] shadow-lg">
-              <span className="font-mono text-[10px] font-bold">
-                {visual.heroCenterBadge ?? 'HTTPS'}
-              </span>
-              <span className="font-mono text-[8px] tracking-widest text-[#9aabba]">LIVE FLOW</span>
-            </div>
-            <div className="w-full space-y-1.5 text-center">
-              <svg viewBox="0 0 120 8" className="h-2 w-full" aria-hidden="true">
-                <line
-                  x1="118"
-                  y1="4"
-                  x2="2"
-                  y2="4"
-                  stroke="#ffad70"
-                  strokeWidth="2"
-                  strokeDasharray="6 6"
-                  className="animate-flow-dash"
-                />
-              </svg>
-              <span className="inline-block rounded bg-[#112734] px-2 py-1 font-mono text-[9px] tracking-[0.1em] text-[#ffad70]">
-                ← RESPONSE
-              </span>
-            </div>
-          </div>
-
-          <div className="w-[170px] rounded-2xl border border-[#94afc4]/25 bg-gradient-to-br from-[#1a2c3d] to-[#111b29] p-4 text-center shadow-[0_14px_40px_rgba(0,0,0,0.45)]">
-            <div className="mx-auto my-2 grid gap-2">
-              {[0, 1, 2].map((r) => (
-                <div
-                  key={r}
-                  className="relative h-6 rounded border border-[#4f7f90] bg-[#20394a]"
-                >
-                  <span className="absolute right-2.5 top-2 h-1.5 w-1.5 animate-pulse rounded-full bg-[#60e0c0] shadow-[0_0_8px_#60e0c0]" />
+              <div className="mt-3 space-y-2 rounded-lg border border-slate-200/80 bg-white p-2.5">
+                <div className="text-[11px] font-semibold text-slate-700">Live App UI</div>
+                <div className="ml-3 rounded-md bg-[#EFF6FF] border border-blue-200/80 px-2.5 py-1.5 text-[11px] font-medium text-[#1E40AF]">
+                  Send request →
                 </div>
-              ))}
+                <div className="mr-3 rounded-md bg-slate-100 px-2.5 py-1.5 text-[11px] font-medium text-slate-700">
+                  200 OK reply
+                </div>
+              </div>
             </div>
-            <span className="mt-3 block font-mono text-[9px] tracking-[0.15em] text-[#8ba0b1] uppercase">
-              {visual.heroRightLabel ?? 'CLOUD BACKEND'}
-            </span>
+
+            {/* Center Animated Flow */}
+            <div className="flex flex-1 flex-col items-center gap-4">
+              <div className="w-full space-y-1.5 text-center">
+                <span className="font-mono text-[10px] font-semibold text-[#1D4ED8]">
+                  REQUEST →
+                </span>
+                <svg viewBox="0 0 120 8" className="h-2 w-full" aria-hidden="true">
+                  <line
+                    x1="2"
+                    y1="4"
+                    x2="118"
+                    y2="4"
+                    stroke="#1D4ED8"
+                    strokeWidth="2"
+                    strokeDasharray="6 6"
+                    className="animate-flow-dash"
+                  />
+                </svg>
+              </div>
+              <div className="flex h-14 w-20 flex-col items-center justify-center rounded-xl border border-blue-200 bg-[#EFF6FF] text-[#1D4ED8]">
+                <span className="font-mono text-xs font-semibold">
+                  {visual.heroCenterBadge ?? 'HTTPS'}
+                </span>
+                <span className="text-[10px] font-medium text-slate-500">Live flow</span>
+              </div>
+              <div className="w-full space-y-1.5 text-center">
+                <svg viewBox="0 0 120 8" className="h-2 w-full" aria-hidden="true">
+                  <line
+                    x1="118"
+                    y1="4"
+                    x2="2"
+                    y2="4"
+                    stroke="#047857"
+                    strokeWidth="2"
+                    strokeDasharray="6 6"
+                    className="animate-flow-dash"
+                  />
+                </svg>
+                <span className="font-mono text-[10px] font-semibold text-emerald-700">
+                  ← RESPONSE
+                </span>
+              </div>
+            </div>
+
+            {/* Right Node: Cloud Backend */}
+            <div className="w-[165px] rounded-xl border border-slate-200 bg-slate-50/70 p-4 text-center">
+              <div className="mx-auto my-2 grid gap-2">
+                {[0, 1, 2].map((r) => (
+                  <div
+                    key={r}
+                    className="flex h-7 items-center justify-between rounded-md border border-slate-200 bg-white px-2.5"
+                  >
+                    <span className="h-1.5 w-10 rounded bg-slate-200" />
+                    <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                  </div>
+                ))}
+              </div>
+              <span className="mt-3 block text-[11px] font-semibold text-slate-600">
+                {visual.heroRightLabel ?? 'Cloud Backend'}
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -164,58 +169,52 @@ export function TimelineRouteStage({ visual }: { visual: SlideVisualConfig }) {
   const part2 = visual.routePart2 ?? [];
 
   return (
-    <div className="grid w-full max-w-[1020px] grid-cols-1 gap-5 md:grid-cols-2">
-      <div className="rounded-2xl border border-white/12 bg-[#132433] p-6 space-y-4">
-        <div className="flex items-center justify-between border-b border-white/10 pb-3">
-          <span className="font-mono text-xs font-bold tracking-[0.14em] text-[#60e0c0]">
-            PART 1 · CORE FOUNDATIONS
+    <div className="grid w-full max-w-[1040px] grid-cols-1 gap-6 md:grid-cols-2">
+      <div className="rounded-xl border border-slate-200 bg-white p-6 sm:p-7 space-y-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3.5">
+          <span className="font-display text-[15px] font-bold text-slate-900">
+            Part 1 · Core Foundations
           </span>
-          <span className="font-mono text-[11px] text-[#8ba2b0]">~90 min</span>
+          <span className="font-mono text-xs text-slate-500 tabular-nums">~90 min</span>
         </div>
-        <div className="space-y-3">
+        <div className="divide-y divide-slate-100">
           {part1.map((b) => (
-            <div
-              key={b.time}
-              className="flex items-start gap-3.5 rounded-xl border border-white/8 bg-[#0e1b27] p-3.5"
-            >
-              <span className="rounded bg-[#143238] px-2 py-1 font-mono text-[11px] font-semibold text-[#60e0c0] tabular-nums shrink-0">
+            <div key={b.time} className="flex items-start gap-4 py-3.5 first:pt-0 last:pb-0">
+              <span className="w-20 font-mono text-xs font-semibold text-[#1D4ED8] tabular-nums shrink-0 pt-0.5">
                 {b.time}
               </span>
               <div>
-                <p className="text-sm font-bold text-[#f1f5f4]">{b.title}</p>
-                <p className="mt-0.5 text-xs text-[#9cb0bc]">{b.desc}</p>
+                <p className="text-[14.5px] font-semibold text-slate-900">{b.title}</p>
+                <p className="mt-0.5 text-[13px] leading-relaxed text-slate-600">{b.desc}</p>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="flex flex-col justify-between gap-4">
-        <div className="rounded-2xl border border-[#ffad70]/45 bg-[#2a201a] px-5 py-3.5 text-center">
-          <span className="font-mono text-xs font-bold tracking-[0.12em] text-[#ffad70]">
-            {visual.routeBreakLabel ?? 'MID-CLASS 15-MINUTE LIVE COUNTDOWN BREAK'}
+      <div className="flex flex-col justify-between gap-5">
+        <div className="rounded-xl border border-amber-200 bg-amber-50/70 px-5 py-3.5 text-center">
+          <span className="text-[13px] font-semibold text-amber-900">
+            {visual.routeBreakLabel ?? 'Mid-Class 15-Minute Live Countdown Break'}
           </span>
         </div>
 
-        <div className="flex-1 rounded-2xl border border-white/12 bg-[#132433] p-6 space-y-4">
-          <div className="flex items-center justify-between border-b border-white/10 pb-3">
-            <span className="font-mono text-xs font-bold tracking-[0.14em] text-[#80b6ff]">
-              PART 2 · TOOLS &amp; PRACTICE LABS
+        <div className="flex-1 rounded-xl border border-slate-200 bg-white p-6 sm:p-7 space-y-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3.5">
+            <span className="font-display text-[15px] font-bold text-slate-900">
+              Part 2 · Tools &amp; Practice Labs
             </span>
-            <span className="font-mono text-[11px] text-[#8ba2b0]">~75 min</span>
+            <span className="font-mono text-xs text-slate-500 tabular-nums">~75 min</span>
           </div>
-          <div className="space-y-3">
+          <div className="divide-y divide-slate-100">
             {part2.map((b) => (
-              <div
-                key={b.time}
-                className="flex items-start gap-3.5 rounded-xl border border-white/8 bg-[#0e1b27] p-3.5"
-              >
-                <span className="rounded bg-[#182940] px-2 py-1 font-mono text-[11px] font-semibold text-[#80b6ff] tabular-nums shrink-0">
+              <div key={b.time} className="flex items-start gap-4 py-3.5 first:pt-0 last:pb-0">
+                <span className="w-20 font-mono text-xs font-semibold text-emerald-700 tabular-nums shrink-0 pt-0.5">
                   {b.time}
                 </span>
                 <div>
-                  <p className="text-sm font-bold text-[#f1f5f4]">{b.title}</p>
-                  <p className="mt-0.5 text-xs text-[#9cb0bc]">{b.desc}</p>
+                  <p className="text-[14.5px] font-semibold text-slate-900">{b.title}</p>
+                  <p className="mt-0.5 text-[13px] leading-relaxed text-slate-600">{b.desc}</p>
                 </div>
               </div>
             ))}
@@ -250,7 +249,7 @@ export function AnimatedWorkflowStage({ visual }: { visual: SlideVisualConfig })
   if (!current) return null;
 
   return (
-    <div className="w-full max-w-[1040px] space-y-5">
+    <div className="w-full max-w-[1040px] space-y-6">
       {/* Playback Controls */}
       <div className="flex flex-wrap items-center justify-center gap-2.5">
         <button
@@ -259,7 +258,7 @@ export function AnimatedWorkflowStage({ visual }: { visual: SlideVisualConfig })
             setAutoPlaying(false);
             setActiveIndex((i) => (i + 1) % steps.length);
           }}
-          className="inline-flex items-center gap-2 rounded-lg border border-[#60e0c0]/55 bg-[#15353a] px-4 py-2 font-mono text-xs font-semibold text-[#60e0c0] hover:bg-[#1a4349] transition-colors whitespace-nowrap"
+          className="inline-flex items-center gap-2 rounded-lg bg-[#1D4ED8] px-4 py-2 text-[13px] font-semibold text-white hover:bg-[#1E40AF] transition-colors whitespace-nowrap"
         >
           Step Forward ({activeIndex + 1} / {steps.length})
           <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -275,17 +274,17 @@ export function AnimatedWorkflowStage({ visual }: { visual: SlideVisualConfig })
               setAutoPlaying(true);
             }
           }}
-          className="inline-flex items-center gap-2 rounded-lg border border-[#ffad70]/55 bg-[#33231a] px-4 py-2 font-mono text-xs font-semibold text-[#ffad70] hover:bg-[#412c20] transition-colors whitespace-nowrap"
+          className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-[13px] font-semibold text-slate-700 hover:border-slate-300 hover:bg-slate-50 transition-colors whitespace-nowrap"
         >
           {autoPlaying ? (
             <>
-              <Pause className="h-3.5 w-3.5" aria-hidden="true" />
-              Pause Animation
+              <Pause className="h-3.5 w-3.5 text-amber-600" aria-hidden="true" />
+              Pause
             </>
           ) : (
             <>
-              <Play className="h-3.5 w-3.5" aria-hidden="true" />
-              Auto-Play Live Workflow
+              <Play className="h-3.5 w-3.5 text-[#1D4ED8]" aria-hidden="true" />
+              Auto-Play Flow
             </>
           )}
         </button>
@@ -296,19 +295,19 @@ export function AnimatedWorkflowStage({ visual }: { visual: SlideVisualConfig })
             setAutoPlaying(false);
             setActiveIndex(0);
           }}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-white/12 bg-[#132433] px-3.5 py-2 font-mono text-xs text-[#9cb0bc] hover:text-[#edf4f5] transition-colors whitespace-nowrap"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-[13px] font-medium text-slate-600 hover:text-slate-900 hover:border-slate-300 transition-colors whitespace-nowrap"
         >
           <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
           Reset
         </button>
       </div>
 
-      {/* Animated Node Pipeline */}
+      {/* Node Pipeline */}
       <div className="flex flex-wrap items-center justify-center gap-2">
         {steps.map((step, idx) => {
           const isActive = idx === activeIndex;
           const isVisited = idx < activeIndex;
-          const accent = ACCENT_MAP[step.accent ?? 'teal'];
+          const accent = ACCENT_MAP[step.accent ?? 'blue'];
           return (
             <div key={step.id} className="flex items-center gap-2">
               <button
@@ -317,25 +316,25 @@ export function AnimatedWorkflowStage({ visual }: { visual: SlideVisualConfig })
                   setAutoPlaying(false);
                   setActiveIndex(idx);
                 }}
-                className={`min-w-[118px] rounded-xl border px-3.5 py-3 text-left transition-all ${
+                className={`min-w-[128px] rounded-xl border px-4 py-3 text-left transition-all ${
                   isActive
-                    ? `${accent.border} ${accent.bg} shadow-[0_0_24px_rgba(96,224,192,0.18)] scale-[1.03]`
+                    ? `${accent.activeBorder} ${accent.bg} shadow-sm ring-2 ring-[#1D4ED8]/10`
                     : isVisited
-                      ? 'border-[#60e0c0]/30 bg-[#122533] text-[#c7dce4]'
-                      : 'border-white/10 bg-[#101d2a] text-[#8ba0ae] hover:border-white/25'
+                      ? 'border-slate-300 bg-white text-slate-800'
+                      : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
                 }`}
               >
                 <span
-                  className={`block font-mono text-[9px] tracking-[0.12em] uppercase ${
-                    isActive ? accent.text : 'text-[#7690a0]'
+                  className={`block font-mono text-[10px] font-semibold ${
+                    isActive ? accent.text : 'text-slate-400'
                   }`}
                 >
                   {step.badge}
                 </span>
-                <span className="mt-1 block text-xs font-bold text-[#f1f5f4]">
+                <span className="mt-1 block text-[13px] font-bold text-slate-900">
                   {step.title}
                 </span>
-                <span className="mt-0.5 block font-mono text-[10px] text-[#8ca3b1]">
+                <span className="mt-0.5 block text-[11px] text-slate-500">
                   {step.subtitle}
                 </span>
               </button>
@@ -351,14 +350,14 @@ export function AnimatedWorkflowStage({ visual }: { visual: SlideVisualConfig })
                     y1="6"
                     x2="22"
                     y2="6"
-                    stroke={idx < activeIndex ? '#60e0c0' : '#354d5e'}
+                    stroke={idx < activeIndex ? '#1D4ED8' : '#CBD5E1'}
                     strokeWidth="2"
                     strokeDasharray="4 4"
                     className={idx === activeIndex - 1 || idx === activeIndex ? 'animate-flow-dash' : ''}
                   />
                   <polygon
                     points="20,2 27,6 20,10"
-                    fill={idx < activeIndex ? '#60e0c0' : '#354d5e'}
+                    fill={idx < activeIndex ? '#1D4ED8' : '#CBD5E1'}
                   />
                 </svg>
               )}
@@ -367,30 +366,30 @@ export function AnimatedWorkflowStage({ visual }: { visual: SlideVisualConfig })
         })}
       </div>
 
-      {/* Live Inspector Card for Active Step */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-        <div className="lg:col-span-6 rounded-2xl border border-white/12 bg-[#132433] p-5 space-y-2">
-          <span className="font-mono text-[10px] font-semibold tracking-[0.14em] text-[#60e0c0] uppercase">
-            STOP {activeIndex + 1} OF {steps.length} · {current.title}
+      {/* Live Inspector Card + Intentional Dark Code Snapshot */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
+        <div className="lg:col-span-6 rounded-xl border border-slate-200 bg-white p-6 space-y-2.5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+          <span className="text-xs font-semibold text-[#1D4ED8] tabular-nums">
+            Step {activeIndex + 1} of {steps.length} · {current.title}
           </span>
-          <h3 className="font-display text-lg font-bold text-[#f1f5f4]">
+          <h3 className="font-display text-lg font-bold text-slate-900">
             {current.subtitle}
           </h3>
-          <p className="text-sm leading-relaxed text-[#b9cdd6]">
+          <p className="text-[14.5px] leading-[1.65] text-slate-600">
             <InlineCodeText text={current.explanation} />
           </p>
         </div>
 
-        <div className="lg:col-span-6 rounded-2xl border border-[#60e0c0]/25 bg-[#0a131d] p-5 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-[10px] font-semibold tracking-[0.14em] text-[#ffad70] uppercase">
+        <div className="lg:col-span-6 rounded-xl border border-slate-800 bg-[#0F172A] p-6 space-y-2.5 shadow-sm">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-mono font-semibold text-blue-300">
               {current.payloadLabel}
             </span>
-            <span className="font-mono text-[10px] text-[#60e0c0]">
-              {visual.workflowFlowLabel ?? 'LIVE DATA SNAPSHOT'}
+            <span className="font-mono text-[11px] text-slate-400">
+              {visual.workflowFlowLabel ?? 'Live data snapshot'}
             </span>
           </div>
-          <pre className="overflow-x-auto whitespace-pre-wrap font-mono text-xs leading-relaxed text-[#d7ebe8]">
+          <pre className="overflow-x-auto whitespace-pre-wrap font-mono text-xs leading-relaxed text-slate-100">
             {current.payloadPreview}
           </pre>
         </div>
@@ -406,17 +405,17 @@ export function ToolSpotlightStage({ visual }: { visual: SlideVisualConfig }) {
   const active = hotspots[selectedPin] ?? hotspots[0];
 
   return (
-    <div className="grid w-full max-w-[1060px] grid-cols-1 items-start gap-5 lg:grid-cols-12">
-      {/* Real Fetched Tool Screenshot with Interactive Numbered Hotspots */}
+    <div className="grid w-full max-w-[1060px] grid-cols-1 items-start gap-6 lg:grid-cols-12">
+      {/* Real Tool Screenshot with Numbered Hotspots */}
       <div className="lg:col-span-8 space-y-2.5">
-        <div className="relative overflow-hidden rounded-2xl border border-white/16 bg-[#0b141f] shadow-[0_18px_48px_rgba(0,0,0,0.45)]">
-          <div className="flex items-center justify-between gap-3 border-b border-white/10 bg-[#12202e] px-3.5 py-2 sm:px-4">
-            <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
-              <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#ff8585]/80" />
-              <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#ffad70]/80" />
-              <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#60e0c0]/80" />
-              <span className="ml-1.5 truncate font-mono text-[11px] font-semibold text-[#dbe8ee]">
-                REAL TOOL UI · {visual.toolName}
+        <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_4px_20px_rgba(15,23,42,0.06)]">
+          <div className="flex items-center justify-between gap-3 border-b border-slate-200 bg-slate-50 px-4 py-2.5">
+            <div className="flex min-w-0 items-center gap-2">
+              <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-slate-300" />
+              <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-slate-300" />
+              <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-slate-300" />
+              <span className="ml-1.5 truncate text-xs font-semibold text-slate-700">
+                {visual.toolName}
               </span>
             </div>
             {visual.toolSourceUrl && (
@@ -424,24 +423,24 @@ export function ToolSpotlightStage({ visual }: { visual: SlideVisualConfig }) {
                 href={visual.toolSourceUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex shrink-0 items-center gap-1 font-mono text-[10px] font-semibold text-[#60e0c0] hover:underline whitespace-nowrap"
+                className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-[#1D4ED8] hover:underline whitespace-nowrap"
               >
-                Open Live Tool
+                Open live tool
                 <ExternalLink className="h-3 w-3 shrink-0" aria-hidden="true" />
               </a>
             )}
           </div>
 
-          <div className="relative bg-[#0f1a26]">
+          <div className="relative bg-slate-100">
             {visual.toolImageSrc && (
               <img
                 src={visual.toolImageSrc}
                 alt={visual.toolImageAlt ?? visual.toolName ?? 'Tool UI screenshot'}
-                className="max-h-[380px] w-full object-contain bg-[#0d1722]"
+                className="max-h-[390px] w-full object-contain bg-white"
               />
             )}
 
-            {/* Numbered Interactive Callout Pins */}
+            {/* Numbered Callout Pins */}
             {hotspots.map((spot, idx) => {
               const isSelected = idx === selectedPin;
               return (
@@ -451,10 +450,10 @@ export function ToolSpotlightStage({ visual }: { visual: SlideVisualConfig }) {
                   onClick={() => setSelectedPin(idx)}
                   aria-label={`Inspect ${spot.label}`}
                   style={{ left: `${spot.xPct}%`, top: `${spot.yPct}%` }}
-                  className={`absolute -translate-x-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-full border-2 font-mono text-xs font-extrabold shadow-[0_4px_16px_rgba(0,0,0,0.75)] transition-transform ${
+                  className={`absolute -translate-x-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-full border-2 font-mono text-xs font-bold shadow-md transition-transform ${
                     isSelected
-                      ? 'scale-125 border-white bg-[#60e0c0] text-[#08171c] ring-4 ring-[#60e0c0]/35'
-                      : 'border-[#0b1119] bg-[#ffad70] text-[#1a1109] hover:scale-110'
+                      ? 'scale-125 border-white bg-[#1D4ED8] text-white ring-4 ring-[#1D4ED8]/25'
+                      : 'border-white bg-slate-900 text-white hover:scale-110'
                   }`}
                 >
                   {spot.number}
@@ -465,47 +464,47 @@ export function ToolSpotlightStage({ visual }: { visual: SlideVisualConfig }) {
         </div>
 
         {visual.toolOpenTip && (
-          <p className="text-center font-mono text-[11px] text-[#8ca3b1]">
-            Click pins <strong className="text-[#60e0c0]">1–{hotspots.length}</strong> on the actual {visual.toolName} screenshot · {visual.toolOpenTip}
+          <p className="text-center text-xs text-slate-500">
+            Click pins <strong className="font-semibold text-slate-700">1–{hotspots.length}</strong> on the screenshot · {visual.toolOpenTip}
           </p>
         )}
       </div>
 
       {/* Right Callout Inspector */}
-      <div className="lg:col-span-4 space-y-3">
+      <div className="lg:col-span-4 space-y-3.5">
         <div className="flex flex-wrap gap-1.5">
           {hotspots.map((spot, idx) => (
             <button
               key={spot.number}
               type="button"
               onClick={() => setSelectedPin(idx)}
-              className={`rounded-lg border px-2.5 py-1.5 font-mono text-[11px] font-semibold transition-colors whitespace-nowrap ${
+              className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap ${
                 idx === selectedPin
-                  ? 'border-[#60e0c0] bg-[#15353a] text-[#60e0c0]'
-                  : 'border-white/10 bg-[#12202e] text-[#9cb0bc] hover:border-white/25'
+                  ? 'border-[#1D4ED8] bg-[#EFF6FF] font-semibold text-[#1D4ED8]'
+                  : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
               }`}
             >
-              #{spot.number} {spot.label}
+              {spot.number}. {spot.label}
             </button>
           ))}
         </div>
 
         {active && (
-          <div className="rounded-2xl border border-[#60e0c0]/40 bg-[#132433] p-5 space-y-3">
-            <div className="flex items-center gap-2">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#60e0c0] font-mono text-xs font-extrabold text-[#08171c]">
+          <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-3.5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#1D4ED8] font-mono text-xs font-bold text-white shrink-0">
                 {active.number}
               </span>
-              <h3 className="font-display text-base font-bold text-[#f1f5f4]">
+              <h3 className="font-display text-[16px] font-bold text-slate-900">
                 {active.label}
               </h3>
             </div>
-            <p className="text-sm leading-relaxed text-[#c6dae3]">
+            <p className="text-[14px] leading-[1.6] text-slate-600">
               <InlineCodeText text={active.detail} />
             </p>
-            <div className="rounded-xl border border-[#ffad70]/30 bg-[#2a211b] p-3 text-xs leading-relaxed text-[#f7d8be]">
-              <span className="block font-mono text-[10px] font-bold tracking-[0.1em] text-[#ffad70] uppercase mb-1">
-                VIBE-CODER PRACTICE TIP
+            <div className="border-t border-slate-100 pt-3 text-[13px] leading-relaxed text-slate-700">
+              <span className="block text-xs font-semibold text-amber-800 mb-1">
+                Practice tip
               </span>
               <InlineCodeText text={active.vibeNote} />
             </div>
@@ -527,29 +526,29 @@ export function ComparisonSplitStage({ visual }: { visual: SlideVisualConfig }) 
         : 'md:grid-cols-2';
 
   return (
-    <div className="w-full max-w-[1040px] space-y-4">
-      <div className={`grid grid-cols-1 gap-4 ${colClass}`}>
+    <div className="w-full max-w-[1040px] space-y-5">
+      <div className={`grid grid-cols-1 gap-5 ${colClass}`}>
         {sides.map((side) => {
           const accent = ACCENT_MAP[side.accent];
           return (
             <div
               key={side.title}
-              className={`flex flex-col justify-between rounded-2xl border ${accent.border} bg-[#122230] p-5 space-y-3`}
+              className="flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-6 space-y-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)]"
             >
-              <div className="space-y-2">
-                <span
-                  className={`inline-block rounded px-2 py-0.5 font-mono text-[10px] font-bold tracking-[0.1em] uppercase ${accent.pill}`}
-                >
+              <div className="space-y-3">
+                <span className={`block text-xs font-semibold ${accent.text}`}>
                   {side.badge}
                 </span>
-                <h3 className="font-display text-lg font-extrabold text-[#f1f5f4]">
-                  {side.title}
-                </h3>
-                <p className="text-xs text-[#9eb2be]">{side.subtitle}</p>
-                <ul className="space-y-2 pt-2 text-xs leading-relaxed text-[#d3e2e8]">
+                <div>
+                  <h3 className="font-display text-lg font-bold text-slate-900">
+                    {side.title}
+                  </h3>
+                  <p className="mt-0.5 text-[13.5px] text-slate-500">{side.subtitle}</p>
+                </div>
+                <ul className="space-y-2.5 pt-2 border-t border-slate-100 text-[13.5px] leading-relaxed text-slate-700">
                   {side.points.map((pt) => (
-                    <li key={pt} className="flex items-start gap-2">
-                      <span className={`mt-1 h-1.5 w-1.5 rounded-full shrink-0 ${accent.pill}`} />
+                    <li key={pt} className="flex items-start gap-2.5">
+                      <span className={`mt-2 h-1.5 w-1.5 rounded-full shrink-0 ${accent.dot}`} />
                       <span>
                         <InlineCodeText text={pt} />
                       </span>
@@ -559,7 +558,7 @@ export function ComparisonSplitStage({ visual }: { visual: SlideVisualConfig }) 
               </div>
 
               {side.codeOrExample && (
-                <div className="rounded-xl bg-[#0a131d] px-3 py-2.5 font-mono text-[11px] leading-relaxed text-[#cfe7e4] border border-white/8">
+                <div className="rounded-lg bg-[#0F172A] px-3.5 py-2.5 font-mono text-xs leading-relaxed text-slate-100">
                   {side.codeOrExample}
                 </div>
               )}
@@ -569,8 +568,8 @@ export function ComparisonSplitStage({ visual }: { visual: SlideVisualConfig }) 
       </div>
 
       {visual.comparisonTakeaway && (
-        <div className="rounded-xl border border-white/10 bg-[#132433] px-5 py-3 text-center text-xs text-[#c7dce4]">
-          <strong className="font-mono text-[#60e0c0] mr-2">RULE OF THUMB:</strong>
+        <div className="rounded-xl border border-slate-200 bg-white px-5 py-3.5 text-center text-[14px] text-slate-700">
+          <strong className="font-semibold text-slate-900 mr-2">Rule of thumb:</strong>
           <InlineCodeText text={visual.comparisonTakeaway} />
         </div>
       )}
@@ -586,55 +585,48 @@ export function UseCaseGalleryStage({ visual }: { visual: SlideVisualConfig }) {
   if (!active) return null;
 
   return (
-    <div className="w-full max-w-[980px] space-y-5">
-      <div className="flex flex-wrap justify-center gap-2">
-        {items.map((item, idx) => (
-          <button
-            key={item.appName}
-            type="button"
-            onClick={() => setSelected(idx)}
-            className={`rounded-xl border px-4 py-2 font-mono text-xs font-semibold transition-all whitespace-nowrap ${
-              idx === selected
-                ? 'border-[#60e0c0] bg-[#15353a] text-[#60e0c0]'
-                : 'border-white/12 bg-[#12202e] text-[#9eb2be] hover:border-white/30'
-            }`}
-          >
-            {item.appName}
-          </button>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div className="rounded-2xl border border-[#60e0c0]/40 bg-[#132934] p-6 space-y-2.5">
-          <span className="font-mono text-[10px] font-bold tracking-[0.14em] text-[#60e0c0] uppercase">
-            WHAT YOU SEE ({active.appName})
-          </span>
-          <p className="text-sm leading-relaxed text-[#e6f1f3]">{active.userSees}</p>
-        </div>
-
-        <div className="rounded-2xl border border-[#ffad70]/40 bg-[#261f1d] p-6 space-y-2.5">
-          <span className="font-mono text-[10px] font-bold tracking-[0.14em] text-[#ffad70] uppercase">
-            HIDDEN BACKEND ENGINE
-          </span>
-          <p className="text-sm leading-relaxed text-[#f7e2d0]">{active.behindTheScenes}</p>
-        </div>
-      </div>
-
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#111f2d] px-5 py-3.5 text-xs">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="font-mono text-[10px] tracking-[0.12em] text-[#80b6ff] uppercase">
-            REAL-WORLD STACK:
-          </span>
-          {active.realTools.map((t) => (
-            <span
-              key={t}
-              className="rounded-md border border-white/12 bg-[#182b3d] px-2.5 py-0.5 font-mono text-[11px] text-[#dbe8ee]"
+    <div className="w-full max-w-[980px] space-y-6">
+      <div className="flex flex-wrap justify-center">
+        <div className="inline-flex flex-wrap items-center gap-1 rounded-lg bg-slate-100 p-1">
+          {items.map((item, idx) => (
+            <button
+              key={item.appName}
+              type="button"
+              onClick={() => setSelected(idx)}
+              className={`rounded-md px-4 py-1.5 text-[13px] transition-all whitespace-nowrap ${
+                idx === selected
+                  ? 'bg-white font-semibold text-slate-900 shadow-2xs ring-1 ring-slate-200/80'
+                  : 'font-medium text-slate-600 hover:text-slate-900'
+              }`}
             >
-              {t}
-            </span>
+              {item.appName}
+            </button>
           ))}
         </div>
-        <span className="font-mono text-[11px] font-semibold text-[#60e0c0]">
+      </div>
+
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+        <div className="rounded-xl border border-slate-200 bg-white p-6 space-y-2.5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+          <span className="text-xs font-semibold text-[#1D4ED8]">
+            What the user sees ({active.appName})
+          </span>
+          <p className="text-[14.5px] leading-[1.65] text-slate-700">{active.userSees}</p>
+        </div>
+
+        <div className="rounded-xl border border-slate-200 bg-white p-6 space-y-2.5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+          <span className="text-xs font-semibold text-amber-700">
+            Hidden backend engine
+          </span>
+          <p className="text-[14.5px] leading-[1.65] text-slate-700">{active.behindTheScenes}</p>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-5 py-4 text-[13px]">
+        <div className="flex flex-wrap items-center gap-2 text-slate-600">
+          <span className="font-semibold text-slate-900">Production stack:</span>
+          <span>{active.realTools.join(' · ')}</span>
+        </div>
+        <span className="font-mono text-xs font-semibold text-emerald-700 tabular-nums">
           {active.highlightMetric}
         </span>
       </div>
@@ -642,7 +634,7 @@ export function UseCaseGalleryStage({ visual }: { visual: SlideVisualConfig }) {
   );
 }
 
-/* ---------- 7. HANDS-ON PRACTICE TEST STAGE (INSTRUCTOR SELF-TEST + STUDENT QUIZ) ---------- */
+/* ---------- 7. HANDS-ON PRACTICE TEST STAGE ---------- */
 export function PracticeTestStage({ visual }: { visual: SlideVisualConfig }) {
   const questions = visual.questions ?? [];
   const [qIndex, setQIndex] = useState(0);
@@ -659,20 +651,21 @@ export function PracticeTestStage({ visual }: { visual: SlideVisualConfig }) {
   const answeredCount = Object.keys(answers).length;
 
   return (
-    <div className="w-full max-w-[920px] rounded-2xl border border-white/14 bg-[#122231] p-6 space-y-5 shadow-[0_18px_45px_rgba(0,0,0,0.4)]">
+    <div className="w-full max-w-[900px] rounded-xl border border-slate-200 bg-white p-6 sm:p-7 space-y-6 shadow-[0_2px_8px_rgba(15,23,42,0.04)]">
       {/* Header + Progress */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3.5">
-        <div className="flex items-center gap-2.5">
-          <span className="rounded-md bg-[#60e0c0] px-2.5 py-1 font-mono text-[10px] font-extrabold text-[#08171c] uppercase">
-            {visual.practiceMode === 'capstone' ? 'SELF-CHECK EXAM' : 'PRACTICE TEST'}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+        <div className="flex items-center gap-2.5 text-[13px]">
+          <span className="font-semibold text-[#1D4ED8]">
+            {visual.practiceMode === 'capstone' ? 'Self-Check Exam' : 'Practice Check'}
           </span>
-          <span className="font-mono text-xs text-[#9cb0bc]">
+          <span aria-hidden="true" className="text-slate-300">·</span>
+          <span className="text-slate-500 tabular-nums">
             Question {qIndex + 1} of {questions.length}
           </span>
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="font-mono text-xs font-semibold text-[#60e0c0] tabular-nums">
+          <span className="font-mono text-xs font-semibold text-emerald-700 tabular-nums">
             Score: {score} / {questions.length}
           </span>
           <button
@@ -681,7 +674,7 @@ export function PracticeTestStage({ visual }: { visual: SlideVisualConfig }) {
               setAnswers({});
               setQIndex(0);
             }}
-            className="inline-flex items-center gap-1 rounded-md border border-white/12 bg-[#172a3b] px-2.5 py-1 font-mono text-[11px] text-[#b4c8d3] hover:text-white"
+            className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900"
           >
             <RotateCcw className="h-3 w-3" aria-hidden="true" />
             Retry
@@ -691,22 +684,23 @@ export function PracticeTestStage({ visual }: { visual: SlideVisualConfig }) {
 
       {/* Scenario Prompt */}
       <div className="space-y-4">
-        <p className="font-display text-lg font-bold leading-snug text-[#f1f5f4] sm:text-xl">
+        <p className="font-display text-lg font-bold leading-snug text-slate-900 sm:text-xl">
           <InlineCodeText text={current.scenario} />
         </p>
 
-        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {current.options.map((opt, idx) => {
             const picked = chosen === idx;
             const correctOpt = idx === current.correctIndex;
-            let style = 'border-white/12 bg-[#0d1a26] text-[#d5e4ea] hover:border-[#60e0c0]/55';
+            let style =
+              'border-slate-200 bg-white text-slate-800 hover:border-slate-300 hover:bg-slate-50';
             if (isAnswered) {
               if (correctOpt) {
-                style = 'border-[#60e0c0] bg-[#14373a] text-[#dffaf3]';
+                style = 'border-emerald-500 bg-emerald-50/80 text-emerald-950';
               } else if (picked) {
-                style = 'border-[#ff8585] bg-[#361b21] text-[#ffd6d6]';
+                style = 'border-red-400 bg-red-50/80 text-red-950';
               } else {
-                style = 'border-white/8 bg-[#0c1620] text-[#7c94a5] opacity-70';
+                style = 'border-slate-200 bg-slate-50/50 text-slate-400';
               }
             }
 
@@ -715,9 +709,9 @@ export function PracticeTestStage({ visual }: { visual: SlideVisualConfig }) {
                 key={opt}
                 type="button"
                 onClick={() => setAnswers((prev) => ({ ...prev, [current.id]: idx }))}
-                className={`flex items-start gap-3 rounded-xl border p-3.5 text-left text-xs leading-relaxed transition-all ${style}`}
+                className={`flex items-start gap-3 rounded-lg border p-4 text-left text-[14px] leading-relaxed transition-all ${style}`}
               >
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-current font-mono text-[10px] font-bold">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-current font-mono text-[11px] font-semibold">
                   {String.fromCharCode(65 + idx)}
                 </span>
                 <span className="flex-1 font-medium">{opt}</span>
@@ -727,26 +721,26 @@ export function PracticeTestStage({ visual }: { visual: SlideVisualConfig }) {
         </div>
       </div>
 
-      {/* Instant Explanation (English + Banglish for Instructor Mastery!) */}
+      {/* Instant Explanation */}
       {isAnswered && (
         <div
-          className={`rounded-xl border p-4 space-y-2 ${
+          className={`rounded-xl border p-4 sm:p-5 space-y-2.5 ${
             isCorrect
-              ? 'border-[#60e0c0]/45 bg-[#123035]'
-              : 'border-[#ffad70]/45 bg-[#2d211b]'
+              ? 'border-emerald-200 bg-emerald-50/60'
+              : 'border-amber-200 bg-amber-50/60'
           }`}
         >
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-2 font-mono text-xs font-bold">
+            <div className="flex items-center gap-2 text-[13px] font-semibold">
               {isCorrect ? (
                 <>
-                  <CheckCircle2 className="h-4 w-4 text-[#60e0c0]" aria-hidden="true" />
-                  <span className="text-[#60e0c0]">SPOT ON! YOU NAILED IT</span>
+                  <CheckCircle2 className="h-4 w-4 text-emerald-700" aria-hidden="true" />
+                  <span className="text-emerald-800">Correct</span>
                 </>
               ) : (
                 <>
-                  <XCircle className="h-4 w-4 text-[#ffad70]" aria-hidden="true" />
-                  <span className="text-[#ffad70]">NOT QUITE — HERE IS WHY:</span>
+                  <XCircle className="h-4 w-4 text-amber-700" aria-hidden="true" />
+                  <span className="text-amber-900">Not quite — here is why</span>
                 </>
               )}
             </div>
@@ -754,46 +748,43 @@ export function PracticeTestStage({ visual }: { visual: SlideVisualConfig }) {
             <button
               type="button"
               onClick={() => setShowBangla((b) => !b)}
-              className="rounded border border-white/15 bg-black/25 px-2.5 py-0.5 font-mono text-[10px] text-[#dbe8ee]"
+              className="rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
             >
-              {showBangla ? 'Hide Banglish Note' : 'Show Banglish Note'}
+              {showBangla ? 'Hide Banglish note' : 'Show Banglish note'}
             </button>
           </div>
 
-          <p className="text-xs leading-relaxed text-[#e4f0f2]">
+          <p className="text-[14px] leading-relaxed text-slate-800">
             <InlineCodeText text={current.explanationEn} />
           </p>
           {showBangla && (
-            <p className="rounded-lg bg-black/25 px-3 py-2 text-xs leading-relaxed text-[#ffe0bf]">
-              <strong className="font-mono text-[10px] text-[#ffad70] mr-1.5">BANGLISH:</strong>
-              <InlineCodeText
-                text={current.explanationBanglish}
-                codeClassName="rounded bg-white/10 px-1.5 py-0.5 font-mono text-[0.9em] text-[#ffad70]"
-              />
+            <p className="rounded-lg border border-slate-200/80 bg-white px-3.5 py-2.5 text-[13.5px] leading-relaxed text-slate-700">
+              <strong className="font-semibold text-slate-900 mr-1.5">Banglish:</strong>
+              <InlineCodeText text={current.explanationBanglish} />
             </p>
           )}
         </div>
       )}
 
       {/* Question Selector Footer */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
         <div className="flex items-center gap-1.5">
           {questions.map((q, idx) => {
             const ans = answers[q.id];
             const dotStyle =
               idx === qIndex
-                ? 'border-[#60e0c0] bg-[#60e0c0] text-[#08171c]'
+                ? 'border-[#1D4ED8] bg-[#1D4ED8] text-white'
                 : ans === q.correctIndex
-                  ? 'border-[#60e0c0]/50 bg-[#15353a] text-[#60e0c0]'
+                  ? 'border-emerald-300 bg-emerald-50 text-emerald-800'
                   : ans !== undefined
-                    ? 'border-[#ff8585]/50 bg-[#361b21] text-[#ff8585]'
-                    : 'border-white/15 bg-[#101e2b] text-[#8ca3b1]';
+                    ? 'border-red-300 bg-red-50 text-red-800'
+                    : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300';
             return (
               <button
                 key={q.id}
                 type="button"
                 onClick={() => setQIndex(idx)}
-                className={`h-7 w-7 rounded-lg border font-mono text-xs font-bold transition-colors ${dotStyle}`}
+                className={`h-8 w-8 rounded-lg border font-mono text-xs font-semibold transition-colors ${dotStyle}`}
               >
                 {idx + 1}
               </button>
@@ -801,17 +792,19 @@ export function PracticeTestStage({ visual }: { visual: SlideVisualConfig }) {
           })}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {answeredCount === questions.length && (
-            <span className="font-mono text-xs font-semibold text-[#60e0c0]">
-              {score === questions.length ? '100% Ready to Teach!' : `Completed (${score}/${questions.length})`}
+            <span className="text-xs font-semibold text-emerald-700 tabular-nums">
+              {score === questions.length
+                ? 'All answers correct'
+                : `Completed (${score}/${questions.length})`}
             </span>
           )}
           {qIndex < questions.length - 1 && (
             <button
               type="button"
               onClick={() => setQIndex((i) => i + 1)}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-[#60e0c0] px-3.5 py-1.5 font-mono text-xs font-bold text-[#08171c] hover:bg-[#7ae8cc]"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[#1D4ED8] px-4 py-2 text-[13px] font-semibold text-white hover:bg-[#1E40AF] transition-colors"
             >
               Next Question
               <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -847,22 +840,24 @@ export function VisualDiagramStage({ visual }: { visual: SlideVisualConfig }) {
       <div
         className={`${
           hasImage
-            ? 'lg:col-span-6 space-y-3'
-            : 'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'
+            ? 'lg:col-span-6 space-y-4'
+            : 'grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3'
         }`}
       >
         {cards.map((card) => {
-          const accent = ACCENT_MAP[card.accent ?? 'teal'];
+          const accent = ACCENT_MAP[card.accent ?? 'blue'];
           return (
             <div
               key={card.title}
-              className={`rounded-2xl border ${accent.border} bg-[#132433] p-4 space-y-1.5`}
+              className="rounded-xl border border-slate-200 bg-white p-5 space-y-2 shadow-[0_1px_2px_rgba(15,23,42,0.04)]"
             >
-              <span className={`font-mono text-[10px] font-bold tracking-[0.12em] uppercase ${accent.text}`}>
+              <span className={`block text-xs font-semibold ${accent.text}`}>
                 {card.label}
               </span>
-              <h3 className="font-display text-base font-bold text-[#f1f5f4]">{card.title}</h3>
-              <p className="text-xs leading-relaxed text-[#b2c7d1]">{card.detail}</p>
+              <h3 className="font-display text-[16px] font-bold text-slate-900">
+                {card.title}
+              </h3>
+              <p className="text-[14px] leading-[1.6] text-slate-600">{card.detail}</p>
             </div>
           );
         })}
@@ -882,20 +877,21 @@ export function CodeTranslatorStage({ visual }: { visual: SlideVisualConfig }) {
   const active = lines[selectedLine] ?? lines[0];
 
   return (
-    <div className="grid w-full max-w-[1020px] grid-cols-1 gap-5 lg:grid-cols-12">
-      <div className="lg:col-span-7 rounded-2xl border border-white/14 bg-[#0b131e] overflow-hidden">
-        <div className="flex items-center justify-between border-b border-white/10 bg-[#12202f] px-4 py-2.5">
-          <div className="flex items-center gap-2">
+    <div className="grid w-full max-w-[1020px] grid-cols-1 gap-6 lg:grid-cols-12">
+      {/* Intentional Dark Code Editor Block */}
+      <div className="lg:col-span-7 rounded-xl border border-slate-800 bg-[#0F172A] overflow-hidden shadow-sm">
+        <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900 px-4 py-2.5">
+          <div className="flex items-center gap-1.5">
             <button
               type="button"
               onClick={() => {
                 setTab('primary');
                 setSelectedLine(0);
               }}
-              className={`rounded px-2.5 py-1 font-mono text-[11px] font-semibold ${
+              className={`rounded-md px-2.5 py-1 font-mono text-xs font-medium transition-colors ${
                 tab === 'primary'
-                  ? 'bg-[#60e0c0] text-[#08171c]'
-                  : 'text-[#8ca3b1] hover:text-white'
+                  ? 'bg-[#1D4ED8] text-white'
+                  : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               {visual.codeFilename ?? 'server.py'}
@@ -907,17 +903,17 @@ export function CodeTranslatorStage({ visual }: { visual: SlideVisualConfig }) {
                   setTab('secondary');
                   setSelectedLine(0);
                 }}
-                className={`rounded px-2.5 py-1 font-mono text-[11px] font-semibold ${
+                className={`rounded-md px-2.5 py-1 font-mono text-xs font-medium transition-colors ${
                   tab === 'secondary'
-                    ? 'bg-[#ffad70] text-[#1a1109]'
-                    : 'text-[#8ca3b1] hover:text-white'
+                    ? 'bg-[#1D4ED8] text-white'
+                    : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
                 {visual.secondaryCodeFilename}
               </button>
             )}
           </div>
-          <span className="font-mono text-[10px] text-[#7c94a5]">Click any line to translate</span>
+          <span className="text-[11px] text-slate-400">Click any line to inspect</span>
         </div>
 
         <div className="p-3 space-y-1">
@@ -928,11 +924,11 @@ export function CodeTranslatorStage({ visual }: { visual: SlideVisualConfig }) {
               onClick={() => setSelectedLine(idx)}
               className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left font-mono text-xs transition-colors ${
                 idx === selectedLine
-                  ? 'bg-[#16383e] text-[#9ff4dd] border border-[#60e0c0]/50'
-                  : 'text-[#bfd2db] hover:bg-white/5 border border-transparent'
+                  ? 'bg-[#1E3A8A]/70 text-blue-100 border border-blue-400/40'
+                  : 'text-slate-300 hover:bg-white/5 border border-transparent'
               }`}
             >
-              <span className="w-5 text-right text-[10px] text-[#607a8a] select-none">
+              <span className="w-5 text-right text-[11px] text-slate-500 select-none tabular-nums">
                 {idx + 1}
               </span>
               <code className="whitespace-pre-wrap break-all">{line.code}</code>
@@ -942,18 +938,18 @@ export function CodeTranslatorStage({ visual }: { visual: SlideVisualConfig }) {
       </div>
 
       {active && (
-        <div className="lg:col-span-5 flex flex-col justify-center gap-4 rounded-2xl border border-[#60e0c0]/35 bg-[#132433] p-6">
+        <div className="lg:col-span-5 flex flex-col justify-center gap-5 rounded-xl border border-slate-200 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
           <div>
-            <span className="font-mono text-[10px] font-bold tracking-[0.14em] text-[#60e0c0] uppercase">
-              LINE {selectedLine + 1} IN PLAIN ENGLISH
+            <span className="text-xs font-semibold text-[#1D4ED8] tabular-nums">
+              Line {selectedLine + 1} in plain English
             </span>
-            <p className="mt-2 font-display text-lg font-bold leading-snug text-[#f1f5f4]">
+            <p className="mt-2 font-display text-lg font-bold leading-snug text-slate-900">
               {active.plainEnglish}
             </p>
           </div>
-          <div className="rounded-xl border border-[#ffad70]/30 bg-[#2a211b] p-4 text-xs leading-relaxed text-[#f7d8be]">
-            <span className="block font-mono text-[10px] font-bold tracking-[0.1em] text-[#ffad70] uppercase mb-1">
-              BANGLISH TRANSLATION
+          <div className="border-t border-slate-100 pt-4 text-[14px] leading-relaxed text-slate-700">
+            <span className="block text-xs font-semibold text-amber-800 mb-1">
+              Banglish explanation
             </span>
             {active.banglish}
           </div>
@@ -970,8 +966,8 @@ export function UrlDissectorStage({ visual }: { visual: SlideVisualConfig }) {
   const active = segments[activeIdx] ?? segments[0];
 
   return (
-    <div className="w-full max-w-[980px] space-y-5">
-      <div className="flex flex-wrap items-center justify-center gap-1.5 rounded-2xl border border-white/14 bg-[#0b131d] p-5 font-mono text-sm sm:text-base">
+    <div className="w-full max-w-[960px] space-y-6">
+      <div className="flex flex-wrap items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white p-6 font-mono text-sm sm:text-base shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
         {segments.map((seg, idx) => {
           const accent = ACCENT_MAP[seg.accent];
           const isSelected = idx === activeIdx;
@@ -980,10 +976,10 @@ export function UrlDissectorStage({ visual }: { visual: SlideVisualConfig }) {
               key={seg.part}
               type="button"
               onClick={() => setActiveIdx(idx)}
-              className={`rounded-lg border px-3 py-2 font-bold transition-all ${
+              className={`rounded-lg border px-3.5 py-2 font-semibold transition-all ${
                 isSelected
-                  ? `${accent.border} ${accent.bg} ${accent.text} scale-105`
-                  : 'border-white/10 bg-[#12202e] text-[#c7dae2] hover:border-white/30'
+                  ? `${accent.activeBorder} ${accent.bg} ${accent.text} shadow-xs`
+                  : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-white'
               }`}
             >
               {seg.part}
@@ -993,25 +989,23 @@ export function UrlDissectorStage({ visual }: { visual: SlideVisualConfig }) {
       </div>
 
       {active && (
-        <div className="rounded-2xl border border-[#60e0c0]/40 bg-[#132433] p-6 text-center max-w-[680px] mx-auto space-y-2">
-          <span className="font-mono text-xs font-bold tracking-[0.14em] text-[#60e0c0] uppercase">
-            {active.label}
-          </span>
-          <p className="text-sm sm:text-base leading-relaxed text-[#e6f1f3]">{active.meaning}</p>
+        <div className="rounded-xl border border-slate-200 bg-white p-6 text-center max-w-[680px] mx-auto space-y-2 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+          <span className="text-xs font-semibold text-[#1D4ED8]">{active.label}</span>
+          <p className="text-[15px] leading-[1.65] text-slate-700">{active.meaning}</p>
         </div>
       )}
     </div>
   );
 }
 
-/* ---------- 11. STATUS CODES TRAFFIC LIGHT STAGE ---------- */
+/* ---------- 11. STATUS CODES STAGE ---------- */
 export function StatusCodesStage({ visual }: { visual: SlideVisualConfig }) {
   const codes = visual.statusCodes ?? [];
   const [selected, setSelected] = useState(0);
   const active = codes[selected] ?? codes[0];
 
   return (
-    <div className="w-full max-w-[980px] space-y-5">
+    <div className="w-full max-w-[980px] space-y-6">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {codes.map((c, idx) => {
           const accent = ACCENT_MAP[c.accent];
@@ -1021,35 +1015,37 @@ export function StatusCodesStage({ visual }: { visual: SlideVisualConfig }) {
               key={c.code}
               type="button"
               onClick={() => setSelected(idx)}
-              className={`rounded-2xl border p-4 text-center transition-all ${
+              className={`rounded-xl border p-4 text-center transition-all ${
                 isSelected
-                  ? `${accent.border} ${accent.bg} scale-[1.03]`
-                  : 'border-white/10 bg-[#111f2d] hover:border-white/25'
+                  ? `${accent.activeBorder} ${accent.bg} shadow-xs`
+                  : 'border-slate-200 bg-white hover:border-slate-300'
               }`}
             >
-              <div className={`font-mono text-2xl font-extrabold ${accent.text}`}>{c.code}</div>
-              <div className="mt-1 text-[11px] font-semibold text-[#dbe8ee]">{c.label}</div>
+              <div className={`font-mono text-2xl font-bold tabular-nums ${accent.text}`}>
+                {c.code}
+              </div>
+              <div className="mt-1 text-xs font-semibold text-slate-700">{c.label}</div>
             </button>
           );
         })}
       </div>
 
       {active && (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 rounded-2xl border border-white/12 bg-[#132433] p-6">
-          <div className="space-y-1.5">
-            <span className="font-mono text-[10px] font-bold tracking-[0.14em] text-[#60e0c0] uppercase">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 rounded-xl border border-slate-200 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+          <div className="space-y-2">
+            <span className="font-mono text-xs font-semibold text-[#1D4ED8]">
               {active.family} · HTTP {active.code}
             </span>
-            <h3 className="font-display text-xl font-extrabold text-[#f1f5f4]">
+            <h3 className="font-display text-xl font-bold text-slate-900">
               {active.code} {active.label}
             </h3>
-            <p className="text-sm leading-relaxed text-[#c6dae3]">{active.meaning}</p>
+            <p className="text-[14.5px] leading-[1.65] text-slate-600">{active.meaning}</p>
           </div>
-          <div className="rounded-xl border border-white/10 bg-[#0b131d] p-4 space-y-1.5">
-            <span className="font-mono text-[10px] font-bold tracking-[0.14em] text-[#ffad70] uppercase">
-              REAL-WORLD EXAMPLE YOU WILL SEE
+          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 space-y-1.5">
+            <span className="text-xs font-semibold text-slate-800">
+              Real-world example
             </span>
-            <p className="text-xs leading-relaxed text-[#d9e7ec]">{active.realExample}</p>
+            <p className="text-[14px] leading-relaxed text-slate-700">{active.realExample}</p>
           </div>
         </div>
       )}
@@ -1074,18 +1070,18 @@ export function BreakTimerStage() {
   const secs = String(secondsLeft % 60).padStart(2, '0');
 
   return (
-    <div className="flex flex-col items-center gap-5 rounded-2xl border border-[#ffad70]/45 bg-[#152534] px-12 py-9 text-center shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
-      <span className="font-mono text-[11px] tracking-[0.16em] text-[#60e0c0]">
-        LIVE BREAK COUNTDOWN · GRAB TEA / WATER
+    <div className="flex flex-col items-center gap-6 rounded-2xl border border-slate-200 bg-white px-12 py-10 text-center shadow-[0_2px_12px_rgba(15,23,42,0.05)]">
+      <span className="text-[13px] font-semibold text-amber-700">
+        Mid-Class Break · Stretch &amp; Recharge
       </span>
-      <div className="font-mono text-6xl font-bold tracking-wider text-[#ffad70] tabular-nums sm:text-7xl">
+      <div className="font-mono text-6xl font-bold tracking-wider text-slate-900 tabular-nums sm:text-7xl">
         {mins}:{secs}
       </div>
       <div className="flex flex-wrap justify-center gap-3">
         <button
           type="button"
           onClick={() => setRunning((r) => !r)}
-          className="rounded-lg bg-[#60e0c0] px-5 py-2.5 font-mono text-xs font-bold text-[#0b171d] hover:bg-[#77ebd0] transition-colors whitespace-nowrap"
+          className="rounded-lg bg-[#1D4ED8] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#1E40AF] transition-colors whitespace-nowrap"
         >
           {running ? 'Pause Timer' : 'Start 15-Min Timer'}
         </button>
@@ -1095,7 +1091,7 @@ export function BreakTimerStage() {
             setRunning(false);
             setSecondsLeft(900);
           }}
-          className="rounded-lg border border-white/15 bg-[#142333] px-4 py-2.5 font-mono text-xs text-[#b7c9d4] hover:border-[#60e0c0] transition-colors whitespace-nowrap"
+          className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:border-slate-300 hover:bg-slate-50 transition-colors whitespace-nowrap"
         >
           Reset
         </button>
@@ -1116,41 +1112,41 @@ export function RecapBridgeStage({
   const next = visual.nextClassPreview;
 
   return (
-    <div className="w-full max-w-[1000px] space-y-5">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="w-full max-w-[1000px] space-y-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {items.map((item) => (
           <div
             key={item.step}
-            className="rounded-2xl border border-white/12 bg-[#132433] p-4 space-y-1.5"
+            className="rounded-xl border border-slate-200 bg-white p-5 space-y-2 shadow-[0_1px_2px_rgba(15,23,42,0.04)]"
           >
-            <span className="font-mono text-[10px] font-bold tracking-[0.12em] text-[#60e0c0] uppercase">
+            <span className="text-xs font-semibold text-[#1D4ED8]">
               {item.step}
             </span>
-            <p className="text-xs leading-relaxed text-[#d4e3e8]">{item.takeaway}</p>
+            <p className="text-[13.5px] leading-relaxed text-slate-700">{item.takeaway}</p>
           </div>
         ))}
       </div>
 
       {next && (
-        <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#60e0c0]/45 bg-[#133037] p-5">
-          <div className="space-y-1 max-w-xl">
-            <div className="inline-flex items-center gap-1.5 font-mono text-[10px] font-bold tracking-[0.14em] text-[#60e0c0] uppercase">
+        <div className="flex flex-wrap items-center justify-between gap-5 rounded-xl border border-slate-200 bg-white p-6 shadow-[0_1px_3px_rgba(15,23,42,0.05)]">
+          <div className="space-y-1.5 max-w-xl">
+            <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#1D4ED8]">
               <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-              UP NEXT · CLASS {String(next.classNumber).padStart(2, '0')} (3 HOURS)
+              Up next · Class {String(next.classNumber).padStart(2, '0')} (3 hours)
             </div>
-            <h3 className="font-display text-lg font-extrabold text-[#f1f5f4]">
+            <h3 className="font-display text-lg font-bold text-slate-900">
               {next.title}
             </h3>
-            <p className="text-xs text-[#b7cfd8]">{next.hook}</p>
+            <p className="text-[14px] leading-relaxed text-slate-600">{next.hook}</p>
           </div>
 
           {onSelectClass && (next.classNumber === 2 || next.classNumber === 3) && (
             <button
               type="button"
               onClick={() => onSelectClass(next.classNumber as ClassId)}
-              className="inline-flex items-center gap-2 rounded-xl bg-[#60e0c0] px-5 py-3 font-mono text-xs font-bold text-[#08171c] hover:bg-[#7ae8cc] transition-colors whitespace-nowrap"
+              className="inline-flex items-center gap-2 rounded-lg bg-[#1D4ED8] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#1E40AF] transition-colors whitespace-nowrap"
             >
-              Start Class 0{next.classNumber} Now
+              Start Class 0{next.classNumber}
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </button>
           )}

@@ -1,4 +1,4 @@
-export type AppView = 'deck' | 'roadmap' | 'toolkit';
+export type AppView = 'deck' | 'roadmap' | 'toolkit' | 'exam' | 'results' | 'instructor';
 
 export type ClassId = 1 | 2 | 3;
 
@@ -13,6 +13,7 @@ export type SlideStageType =
   | 'visual-diagram'
   | 'break-timer'
   | 'frontend-xray'
+  | 'backend-jobs-lab'
   | 'server-stress'
   | 'postman-lab'
   | 'json-doctor'

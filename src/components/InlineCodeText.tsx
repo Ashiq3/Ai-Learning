@@ -7,11 +7,11 @@ interface InlineCodeTextProps {
 
 /**
  * Renders plain prose with inline backticked segments (`POST /v1/chat`, `gpt-4o`)
- * styled as crisp monospace chips instead of literal raw backtick characters.
+ * styled as crisp monospace inline code instead of literal raw backtick characters.
  */
 export function InlineCodeText({
   text,
-  codeClassName = 'rounded bg-white/10 px-1.5 py-0.5 font-mono text-[0.88em] text-[#7ae8cc]',
+  codeClassName = 'rounded border border-slate-200/90 bg-slate-100 px-1.5 py-0.5 font-mono text-[0.87em] font-medium text-slate-800',
 }: InlineCodeTextProps) {
   if (!text.includes('`')) {
     return <>{text}</>;
