@@ -25,3 +25,7 @@ An interactive **20-class AI backend curriculum** and visual-first slide deck bu
    ```bash
    npm run build
    ```
+
+## Learning Reference
+
+- [Beginner Glossary — Classes 1–3](docs/beginner-glossary-classes-1-to-3.md): plain-language definitions and everyday analogies for the core web, API, backend, database, and AI-token terms introduced in the first three classes.
