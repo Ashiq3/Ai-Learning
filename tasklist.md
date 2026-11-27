@@ -39,7 +39,7 @@ The original checklist above is preserved. Each item is a small, reviewable task
 - [ ] **AIL-024 — Add progress-storage migration tests.** Cover missing data, old schema versions, malformed JSON and storage access errors. **Done when:** learners keep a safe default progress state and compatible old data is migrated intentionally.
 
 ### Beginner teaching experience
-- [ ] **AIL-025 — Add a beginner glossary for Classes 1–3.** Explain recurring terms such as API, backend, database, token, webhook and deployment in plain language. **Done when:** each term has a short definition and one everyday analogy.
+- [x] **AIL-025 — Add a beginner glossary for Classes 1–3.** Explain recurring terms such as API, backend, database, token, webhook and deployment in plain language. **Done when:** each term has a short definition and one everyday analogy. (2026-11-27)
 - [ ] **AIL-026 — Add a lesson prerequisite map.** Show which concepts a learner should understand before each ready class. **Done when:** the map links to actual class/slide IDs and contains no broken references.
 - [ ] **AIL-027 — Add a slide content QA checklist.** Check learning objective, beginner explanation, analogy, practical example and recap for each lesson section. **Done when:** the checklist is usable before publishing new slides.
 - [ ] **AIL-028 — Review slide wording for unexplained jargon.** Start with the first three ready classes and flag terms introduced without a plain-language explanation. **Done when:** every flagged term is explained on first use or linked to the glossary.
